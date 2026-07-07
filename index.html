@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Matchups Companion</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                        <polyline points="2 17 12 22 22 17" />
+                        <polyline points="2 12 12 17 22 12" />
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>LMC</h1>
+                    <span>Matchups Companion</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>
+                    Tableau de bord
+                </button>
+                <button class="nav-item" data-tab="champion-pool">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    Champion Pool
+                </button>
+                <button class="nav-item" data-tab="matchups">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M3 20h9M4 12h16M4 4h16M12 4v16"/></svg>
+                    Mes Matchups
+                </button>
+                <button class="nav-item" data-tab="editor" id="nav-editor-btn">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Ajouter/Modifier
+                </button>
+                <button class="nav-item focus-btn" data-tab="focus-mode">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+                    Mode Focus Loading
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="nav-item" data-tab="settings">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Sauvegarde & Import
+                </button>
+                <div class="version">v1.0.0</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- TAB: Dashboard -->
+            <section id="dashboard" class="tab-content active">
+                <header class="content-header">
+                    <div>
+                        <h2>Tableau de Bord</h2>
+                        <p class="subtitle">Vos raccourcis et statistiques de matchups</p>
+                    </div>
+                </header>
+
+                <div class="dashboard-grid">
+                    <!-- Quick Matchup Checker -->
+                    <div class="card col-2 quick-check-card">
+                        <h3>Recherche Rapide Matchup</h3>
+                        <p>Sélectionnez vos champions pour afficher les notes instantanément</p>
+                        
+                        <div class="matchup-picker-row">
+                            <div class="champion-select-box">
+                                <label>Mon Champion</label>
+                                <div class="custom-select" id="quick-my-champ-select">
+                                    <div class="select-trigger">
+                                        <span class="champ-avatar placeholder"></span>
+                                        <span class="champ-name">Choisir...</span>
+                                    </div>
+                                    <div class="select-dropdown-list hidden">
+                                        <input type="text" class="select-search" placeholder="Rechercher...">
+                                        <div class="select-options-container" id="quick-my-options"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="vs-divider">VS</div>
+
+                            <div class="champion-select-box">
+                                <label>Champion Adversaire</label>
+                                <div class="custom-select" id="quick-enemy-champ-select">
+                                    <div class="select-trigger">
+                                        <span class="champ-avatar placeholder"></span>
+                                        <span class="champ-name">Choisir...</span>
+                                    </div>
+                                    <div class="select-dropdown-list hidden">
+                                        <input type="text" class="select-search" placeholder="Rechercher...">
+                                        <div class="select-options-container" id="quick-enemy-options"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quick-check-actions">
+                            <button id="quick-search-btn" class="btn btn-primary" disabled>Voir le Matchup</button>
+                            <button id="quick-focus-btn" class="btn btn-accent" disabled>Lancer le Mode Focus</button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Card -->
+                    <div class="card stats-card">
+                        <h3>Statistiques</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-val" id="stat-pool-count">0</span>
+                                <span class="stat-lbl">Champion Pool</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val" id="stat-matchup-count">0</span>
+                                <span class="stat-lbl">Matchups Définis</span>
+                            </div>
+                        </div>
+                        <div class="difficulty-breakdown">
+                            <h4>Par difficulté :</h4>
+                            <div class="diff-bar-container">
+                                <div class="diff-bar easy" style="width: 0%" title="Facile"></div>
+                                <div class="diff-bar medium" style="width: 0%" title="Moyen"></div>
+                                <div class="diff-bar hard" style="width: 0%" title="Difficile"></div>
+                                <div class="diff-bar skill" style="width: 0%" title="Skill"></div>
+                            </div>
+                            <div class="diff-legend">
+                                <span><span class="dot easy"></span>Facile (<span id="count-easy">0</span>)</span>
+                                <span><span class="dot medium"></span>Moyen (<span id="count-medium">0</span>)</span>
+                                <span><span class="dot hard"></span>Difficile (<span id="count-hard">0</span>)</span>
+                                <span><span class="dot skill"></span>Skill (<span id="count-skill">0</span>)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Matchups -->
+                    <div class="card col-3 recent-matchups-card">
+                        <h3>Derniers Matchups Édités</h3>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mon Champ</th>
+                                        <th>VS</th>
+                                        <th>Adversaire</th>
+                                        <th>Difficulté</th>
+                                        <th>Dernière modification</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-matchups-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Aucun matchup pour le moment. Allez dans "Mon Pool" pour commencer.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Champion Pool -->
+            <section id="champion-pool" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h2>Mon Champion Pool</h2>
+                        <p class="subtitle">Gérez la liste des champions que vous jouez en partie</p>
+                    </div>
+                    <button id="add-pool-champ-btn" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:8px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Ajouter un Champion
+                    </button>
+                </header>
+
+                <div class="pool-grid" id="pool-grid-container">
+                    <!-- Champion Pool Cards will be rendered dynamically here -->
+                    <div class="empty-state">
+                        <div class="empty-icon">⭐</div>
+                        <h3>Votre Champion Pool est vide</h3>
+                        <p>Commencez par ajouter les champions que vous jouez régulièrement pour pouvoir documenter vos matchups.</p>
+                        <button class="btn btn-primary btn-add-first-champ">Ajouter mon premier champion</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Mes Matchups -->
+            <section id="matchups" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h2>Mes Matchups Documentés</h2>
+                        <p class="subtitle">La liste complète de vos notes stratégiques</p>
+                    </div>
+                </header>
+
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="matchups-search-input" placeholder="Filtrer par champion (ex: Camille)...">
+                    </div>
+                    <div class="filter-options">
+                        <select id="filter-difficulty" class="custom-select-small">
+                            <option value="all">Toutes les difficultés</option>
+                            <option value="easy">Facile</option>
+                            <option value="medium">Moyen</option>
+                            <option value="hard">Difficile</option>
+                            <option value="skill">Skill Matchup</option>
+                        </select>
+                        <select id="filter-my-champ" class="custom-select-small">
+                            <option value="all">Tous mes champions</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="matchups-list-grid" id="matchups-list-container">
+                    <!-- Matchup list cards will be rendered dynamically here -->
+                </div>
+            </section>
+
+            <!-- TAB: Matchup Editor -->
+            <section id="editor" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h2 id="editor-title">Créer un Matchup</h2>
+                        <p class="subtitle" id="editor-subtitle">Documentez vos stratégies, builds et astuces contre un adversaire</p>
+                    </div>
+                </header>
+
+                <div class="card editor-card">
+                    <form id="matchup-form">
+                        <input type="hidden" id="matchup-id">
+                        
+                        <div class="editor-header-row">
+                            <div class="champion-select-box">
+                                <label>Mon Champion <span class="required">*</span></label>
+                                <div class="custom-select" id="editor-my-champ-select">
+                                    <div class="select-trigger">
+                                        <span class="champ-avatar placeholder"></span>
+                                        <span class="champ-name">Choisir...</span>
+                                    </div>
+                                    <div class="select-dropdown-list hidden">
+                                        <input type="text" class="select-search" placeholder="Rechercher dans mon pool...">
+                                        <div class="select-options-container" id="editor-my-options"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="vs-divider-large">VS</div>
+
+                            <div class="champion-select-box">
+                                <label>Champion Adversaire <span class="required">*</span></label>
+                                <div class="custom-select" id="editor-enemy-champ-select">
+                                    <div class="select-trigger">
+                                        <span class="champ-avatar placeholder"></span>
+                                        <span class="champ-name">Choisir...</span>
+                                    </div>
+                                    <div class="select-dropdown-list hidden">
+                                        <input type="text" class="select-search" placeholder="Rechercher un champion...">
+                                        <div class="select-options-container" id="editor-enemy-options"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row grid-2">
+                            <div class="form-group">
+                                <label for="matchup-difficulty">Difficulté globale</label>
+                                <div class="difficulty-selector">
+                                    <label class="diff-radio-btn easy">
+                                        <input type="radio" name="difficulty" value="easy" checked>
+                                        <span>Facile</span>
+                                    </label>
+                                    <label class="diff-radio-btn medium">
+                                        <input type="radio" name="difficulty" value="medium">
+                                        <span>Moyen</span>
+                                    </label>
+                                    <label class="diff-radio-btn hard">
+                                        <input type="radio" name="difficulty" value="hard">
+                                        <span>Difficile</span>
+                                    </label>
+                                    <label class="diff-radio-btn skill">
+                                        <input type="radio" name="difficulty" value="skill">
+                                        <span>Skill</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="matchup-winrate">Note d'aisance / Rôle</label>
+                                <input type="text" id="matchup-role" placeholder="ex: Toplane, Win lane, Farm lane..." class="form-control">
+                            </div>
+                        </div>
+
+                        <hr class="form-divider">
+
+                        <div class="form-row grid-2">
+                            <div class="form-group">
+                                <label for="matchup-runes">Configuration des Runes</label>
+                                <textarea id="matchup-runes" rows="3" placeholder="ex: Conquérant + Volonté (Second souffle / Revitalisation). Prendre de l'armure brute en stats." class="form-control text-area-custom"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="matchup-items">Build / Spikes d'objets</label>
+                                <textarea id="matchup-items" rows="3" placeholder="ex: Rush Hydre Vorace pour le sustain, puis Trinité. Prendre Tabis d'acier en priorité." class="form-control text-area-custom"></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="form-divider">
+
+                        <div class="form-group">
+                            <label for="matchup-early">Phase de lignes (Early Game / Niveaux 1-3)</label>
+                            <textarea id="matchup-early" rows="3" placeholder="ex: Respecter son niveau 1. On peut l'agresser au niveau 2 si son sort E est en cooldown." class="form-control text-area-custom"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="matchup-mid">Milieu et fin de partie (Mid / Late Game & Teamfights)</label>
+                            <textarea id="matchup-mid" rows="3" placeholder="ex: Splitpush efficace, il ne peut pas nous défendre en 1v1 après 2 items. En teamfight, focus la backline." class="form-control text-area-custom"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="matchup-tips">Conseils clés et astuces (Détails mécaniques, Cooldowns)</label>
+                            <textarea id="matchup-tips" rows="3" placeholder="ex: Utiliser notre R pour esquiver son étourdissement. Punir quand il rate son Z." class="form-control text-area-custom"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-edit-btn">Annuler</button>
+                            <button type="submit" class="btn btn-primary" id="save-matchup-btn">Enregistrer le Matchup</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- TAB: Focus Mode -->
+            <section id="focus-mode" class="tab-content">
+                <div class="focus-layout">
+                    <div class="focus-back-bar">
+                        <button class="btn btn-secondary btn-sm" id="exit-focus-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:6px;"><polyline points="15 18 9 12 15 6"/></svg>
+                            Quitter le Mode Focus
+                        </button>
+                        <div class="focus-mode-indicator">
+                            <span class="pulse-dot"></span>
+                            MODE FOCUS CHARGEMENT
+                        </div>
+                    </div>
+
+                    <div class="focus-vs-header" id="focus-champ-headers">
+                        <!-- Rendered dynamically -->
+                    </div>
+
+                    <div class="focus-grid">
+                        <div class="focus-card difficulty-focus-card" id="focus-card-difficulty">
+                            <!-- Difficulty indicator -->
+                        </div>
+                        
+                        <div class="focus-card flex-col">
+                            <h3>⚡ Le Plan de Jeu (Early Game)</h3>
+                            <div class="focus-content" id="focus-content-early">
+                                <!-- Early tips -->
+                            </div>
+                        </div>
+
+                        <div class="focus-card flex-col">
+                            <h3>🛡️ Runes & Équipement</h3>
+                            <div class="focus-content" id="focus-content-setup">
+                                <!-- Setup details -->
+                            </div>
+                        </div>
+
+                        <div class="focus-card col-2 flex-col">
+                            <h3>🔥 Conseils Clés & Mécaniques (À retenir !)</h3>
+                            <div class="focus-content focus-content-large" id="focus-content-tips">
+                                <!-- Hot tips -->
+                            </div>
+                        </div>
+
+                        <div class="focus-card flex-col">
+                            <h3>⚔️ Mid/Late & Teamfights</h3>
+                            <div class="focus-content" id="focus-content-mid">
+                                <!-- Mid/late tips -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Settings (Save/Import/Export) -->
+            <section id="settings" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h2>Sauvegarde & Importation</h2>
+                        <p class="subtitle">Gérez vos données de matchups et sauvegardez votre progression</p>
+                    </div>
+                </header>
+
+                <div class="settings-grid">
+                    <div class="card">
+                        <h3>Exporter vos données</h3>
+                        <p>Téléchargez toutes vos notes de matchups et votre champion pool sous forme de fichier JSON. Vous pourrez réimporter ce fichier à tout moment pour restaurer vos données ou les transférer sur un autre navigateur.</p>
+                        <div class="settings-action-block">
+                            <button id="export-data-btn" class="btn btn-primary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Exporter en JSON
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Importer vos données</h3>
+                        <p>Sélectionnez un fichier JSON exporté précédemment pour restaurer vos matchups. <strong>Attention :</strong> Cela remplacera vos données actuelles.</p>
+                        <div class="settings-action-block">
+                            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                            <button id="import-trigger-btn" class="btn btn-secondary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Importer un fichier JSON
+                            </button>
+                            <span id="import-status-text" class="status-text text-muted">Aucun fichier sélectionné</span>
+                        </div>
+                    </div>
+
+                    <div class="card danger-card">
+                        <h3>Zone de danger</h3>
+                        <p>Cette action effacera définitivement l'ensemble de votre champion pool ainsi que toutes vos notes de matchups enregistrées. Cette action est irréversible.</p>
+                        <div class="settings-action-block">
+                            <button id="reset-data-btn" class="btn btn-danger">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:8px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                Réinitialiser toutes les données
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal: Add Champion to Pool -->
+    <div class="modal hidden" id="add-champion-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Ajouter un champion à mon pool</h3>
+                <button class="modal-close" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="modal-search-input" placeholder="Rechercher un champion (ex: Ahri, Jax...)...">
+                </div>
+                <div class="modal-champions-grid" id="modal-champions-list">
+                    <!-- Dynamically rendered list of all champions -->
+                    <div class="loading-spinner-container">
+                        <div class="spinner"></div>
+                        <p>Chargement des champions depuis Riot Games...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
