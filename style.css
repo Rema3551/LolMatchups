@@ -1629,3 +1629,59 @@ a:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* --- Role Tabs Styling --- */
+.role-tabs-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 12px;
+}
+
+.role-tab {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-muted);
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.role-tab:hover {
+    background: rgba(200, 155, 60, 0.05);
+    color: var(--gold-hextech);
+    border-color: rgba(200, 155, 60, 0.3);
+}
+
+.role-tab.active {
+    background: linear-gradient(135deg, rgba(200, 155, 60, 0.2) 0%, rgba(120, 90, 40, 0.1) 100%);
+    color: var(--gold-hextech);
+    border-color: var(--gold-hextech);
+    box-shadow: 0 0 10px rgba(200, 155, 60, 0.15);
+}
+
+/* Role Badges */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.role-badge.top { background-color: rgba(131, 56, 236, 0.15); color: #c8b6ff; border-color: rgba(131, 56, 236, 0.3); }
+.role-badge.jungle { background-color: rgba(46, 196, 182, 0.15); color: #caffbf; border-color: rgba(46, 196, 182, 0.3); }
+.role-badge.mid { background-color: rgba(230, 57, 70, 0.15); color: #ffadad; border-color: rgba(230, 57, 70, 0.3); }
+.role-badge.adc { background-color: rgba(255, 183, 3, 0.15); color: #ffd6a5; border-color: rgba(255, 183, 3, 0.3); }
+.role-badge.support { background-color: rgba(10, 203, 230, 0.15); color: #9bf6ff; border-color: rgba(10, 203, 230, 0.3); }
+

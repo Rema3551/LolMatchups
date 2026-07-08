@@ -10,9 +10,17 @@ let championsList = []; // Array of champion objects sorted by name
 
 // App state
 let state = {
-    championPool: [], // Array of champion IDs (e.g. ['Camille', 'Aatrox'])
-    matchups: {}      // Keyed by "myChamp_enemyChamp", e.g. "Camille_Jax"
+    championPool: {
+        TOP: [],
+        JUNGLE: [],
+        MID: [],
+        ADC: [],
+        SUPPORT: []
+    },
+    matchups: {}      // Keyed by "ROLE_myChamp_enemyChamp", e.g. "TOP_Camille_Jax"
 };
+
+let activeRole = 'TOP'; // Currently active role in Champion Pool UI
 
 // Fallback champion list in case Riot's API is offline
 const OFFLINE_FALLBACK_CHAMPIONS = {
@@ -38,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadLocalData();
     setupNavigation();
     setupEventListeners();
+    setupRoleTabs();
     
     // Load champion data from Riot Games Data Dragon API
     await fetchChampionsList();
@@ -53,10 +62,51 @@ function loadLocalData() {
         const savedMatchups = localStorage.getItem('lmc_matchups');
         
         if (savedPool) {
-            state.championPool = JSON.parse(savedPool);
+            const parsedPool = JSON.parse(savedPool);
+            // Handle migration if it was a flat array
+            if (Array.isArray(parsedPool)) {
+                state.championPool = {
+                    TOP: parsedPool,
+                    JUNGLE: [],
+                    MID: [],
+                    ADC: [],
+                    SUPPORT: []
+                };
+                saveData(); // instantly persist migrated structure
+            } else {
+                state.championPool = parsedPool;
+            }
         }
+        
         if (savedMatchups) {
-            state.matchups = JSON.parse(savedMatchups);
+            const parsedMatchups = JSON.parse(savedMatchups);
+            state.matchups = {};
+            let migratedCount = 0;
+            
+            for (const [key, m] of Object.entries(parsedMatchups)) {
+                let cleanRole = 'TOP';
+                if (m.role) {
+                    const r = m.role.toLowerCase();
+                    if (r.includes('top')) cleanRole = 'TOP';
+                    else if (r.includes('jungle') || r.includes('jng')) cleanRole = 'JUNGLE';
+                    else if (r.includes('mid')) cleanRole = 'MID';
+                    else if (r.includes('adc') || r.includes('bot') || r.includes('botlane')) cleanRole = 'ADC';
+                    else if (r.includes('sup') || r.includes('support')) cleanRole = 'SUPPORT';
+                }
+                
+                const newKey = key.startsWith(`${cleanRole}_`) ? key : `${cleanRole}_${m.myChamp}_${m.enemyChamp}`;
+                state.matchups[newKey] = {
+                    ...m,
+                    id: newKey,
+                    role: cleanRole,
+                    style: m.style || m.role || '' // transfer free-text to style
+                };
+                if (newKey !== key) migratedCount++;
+            }
+            
+            if (migratedCount > 0) {
+                saveData();
+            }
         }
     } catch (e) {
         console.error("Erreur lors de la lecture du LocalStorage", e);
@@ -159,7 +209,7 @@ function renderAllViews() {
 // Tab: Dashboard
 function renderDashboard() {
     // 1. Update stats count
-    const poolCount = state.championPool.length;
+    const poolCount = Object.values(state.championPool).reduce((acc, arr) => acc + arr.length, 0);
     const matchupsCount = Object.keys(state.matchups).length;
 
     document.getElementById('stat-pool-count').textContent = poolCount;
@@ -226,7 +276,9 @@ function renderDashboard() {
                         <span>${championsData[m.myChamp]?.name || m.myChamp}</span>
                     </div>
                 </td>
-                <td class="text-muted font-weight-bold">VS</td>
+                <td class="text-center">
+                    <span class="role-badge ${m.role.toLowerCase()}">${m.role}</span>
+                </td>
                 <td>
                     <div class="champ-badge">
                         <img src="${getChampSquareUrl(m.enemyChamp)}" alt="${m.enemyChamp}">
@@ -239,8 +291,8 @@ function renderDashboard() {
                 <td class="text-muted">${formattedDate}</td>
                 <td>
                     <div class="actions-cell">
-                        <button class="btn btn-secondary btn-sm" onclick="launchFocusMode('${m.myChamp}', '${m.enemyChamp}')">Focus</button>
-                        <button class="btn btn-secondary btn-sm" onclick="editMatchup('${m.myChamp}', '${m.enemyChamp}')">Éditer</button>
+                        <button class="btn btn-secondary btn-sm" onclick="launchFocusMode('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Focus</button>
+                        <button class="btn btn-secondary btn-sm" onclick="editMatchup('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Éditer</button>
                     </div>
                 </td>
             `;
@@ -255,13 +307,14 @@ function renderDashboard() {
 // Tab: Champion Pool
 function renderChampionPool() {
     const container = document.getElementById('pool-grid-container');
+    const rolePool = state.championPool[activeRole] || [];
     
-    if (state.championPool.length === 0) {
+    if (rolePool.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">⭐</div>
-                <h3>Votre Champion Pool est vide</h3>
-                <p>Ajoutez d'abord les champions que vous jouez pour pouvoir documenter vos matchups.</p>
+                <h3>Votre Champion Pool (${activeRole}) est vide</h3>
+                <p>Ajoutez d'abord les champions que vous jouez en ${activeRole} pour pouvoir documenter vos matchups.</p>
                 <button class="btn btn-primary btn-add-first-champ" id="pool-empty-add-btn">Ajouter mon premier champion</button>
             </div>
         `;
@@ -271,12 +324,12 @@ function renderChampionPool() {
 
     container.innerHTML = '';
     
-    state.championPool.forEach(champId => {
+    rolePool.forEach(champId => {
         const champ = championsData[champId];
         if (!champ) return;
 
-        // Count matchups for this champion
-        const matchupCount = Object.values(state.matchups).filter(m => m.myChamp === champId).length;
+        // Count matchups for this champion in activeRole
+        const matchupCount = Object.values(state.matchups).filter(m => m.myChamp === champId && m.role === activeRole).length;
 
         const card = document.createElement('div');
         card.className = 'pool-card';
@@ -294,12 +347,14 @@ function renderChampionPool() {
         card.addEventListener('click', (e) => {
             if (e.target.classList.contains('pool-card-remove-btn')) return;
             
-            // Go to Matchups and filter by this champ
+            // Go to Matchups and filter by this champ and role
             const filterSelect = document.getElementById('filter-my-champ');
             filterSelect.value = champId;
             
-            const event = new Event('change');
-            filterSelect.dispatchEvent(event);
+            const filterRole = document.getElementById('filter-role');
+            filterRole.value = activeRole;
+            
+            renderMatchupsList();
 
             // Switch to matchups tab
             document.querySelector('.nav-item[data-tab="matchups"]').click();
@@ -308,7 +363,7 @@ function renderChampionPool() {
         // Remove btn action
         card.querySelector('.pool-card-remove-btn').addEventListener('click', (e) => {
             e.stopPropagation();
-            removeChampionFromPool(champId);
+            removeChampionFromPool(champId, activeRole);
         });
 
         container.appendChild(card);
@@ -319,6 +374,7 @@ function renderChampionPool() {
 function renderMatchupsList() {
     const container = document.getElementById('matchups-list-container');
     const searchVal = document.getElementById('matchups-search-input').value.toLowerCase().trim();
+    const filterRole = document.getElementById('filter-role').value;
     const filterDifficulty = document.getElementById('filter-difficulty').value;
     const filterMyChamp = document.getElementById('filter-my-champ').value;
 
@@ -327,7 +383,11 @@ function renderMatchupsList() {
         // Search query
         const myName = (championsData[m.myChamp]?.name || m.myChamp).toLowerCase();
         const enemyName = (championsData[m.enemyChamp]?.name || m.enemyChamp).toLowerCase();
-        const matchesSearch = myName.includes(searchVal) || enemyName.includes(searchVal) || m.role.toLowerCase().includes(searchVal) || m.tips.toLowerCase().includes(searchVal);
+        const styleText = (m.style || '').toLowerCase();
+        const matchesSearch = myName.includes(searchVal) || enemyName.includes(searchVal) || m.role.toLowerCase().includes(searchVal) || styleText.includes(searchVal) || m.tips.toLowerCase().includes(searchVal);
+
+        // Role filter
+        const matchesRole = filterRole === 'all' || m.role === filterRole;
 
         // Difficulty filter
         const matchesDifficulty = filterDifficulty === 'all' || m.difficulty === filterDifficulty;
@@ -335,22 +395,35 @@ function renderMatchupsList() {
         // My Champ filter
         const matchesMyChamp = filterMyChamp === 'all' || m.myChamp === filterMyChamp;
 
-        return matchesSearch && matchesDifficulty && matchesMyChamp;
+        return matchesSearch && matchesRole && matchesDifficulty && matchesMyChamp;
     });
 
     // Populate my champion filter dropdown in matchups tab
     const myChampSelect = document.getElementById('filter-my-champ');
     const currentSelection = myChampSelect.value;
     myChampSelect.innerHTML = '<option value="all">Tous mes champions</option>';
-    state.championPool.forEach(c => {
+    
+    let poolChamps = [];
+    if (filterRole === 'all') {
+        const uniqueChamps = new Set();
+        Object.values(state.championPool).forEach(arr => arr.forEach(c => uniqueChamps.add(c)));
+        poolChamps = Array.from(uniqueChamps).sort();
+    } else {
+        poolChamps = state.championPool[filterRole] || [];
+    }
+
+    poolChamps.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c;
         opt.textContent = championsData[c]?.name || c;
         myChampSelect.appendChild(opt);
     });
-    // Restore selection if it still exists
-    if (state.championPool.includes(currentSelection) || currentSelection === 'all') {
+    
+    // Restore selection if it still exists in the filtered champion pool
+    if (poolChamps.includes(currentSelection) || currentSelection === 'all') {
         myChampSelect.value = currentSelection;
+    } else {
+        myChampSelect.value = 'all';
     }
 
     if (filtered.length === 0) {
@@ -385,7 +458,10 @@ function renderMatchupsList() {
                     <span class="focus-vs-divider" style="font-size:16px;">VS</span>
                     <img src="${getChampSquareUrl(m.enemyChamp)}" alt="${m.enemyChamp}" title="${m.enemyChamp}">
                     <div class="matchup-versus-text">
-                        <span>${m.role || 'Aucun rôle'}</span>
+                        <span style="display:flex; gap:6px; align-items:center;">
+                            <span class="role-badge ${m.role.toLowerCase()}" style="padding:1px 5px; font-size:9px; line-height:1.2;">${m.role}</span>
+                            <span>${m.style || 'Général'}</span>
+                        </span>
                         <strong>${championsData[m.myChamp]?.name || m.myChamp} vs ${championsData[m.enemyChamp]?.name || m.enemyChamp}</strong>
                     </div>
                 </div>
@@ -398,9 +474,9 @@ function renderMatchupsList() {
             <div class="matchup-card-footer">
                 <span class="matchup-date">Modifié le ${new Date(m.updatedAt).toLocaleDateString('fr-FR')}</span>
                 <div class="actions-cell">
-                    <button class="btn btn-accent btn-sm" onclick="launchFocusMode('${m.myChamp}', '${m.enemyChamp}')">Focus</button>
-                    <button class="btn btn-secondary btn-sm" onclick="editMatchup('${m.myChamp}', '${m.enemyChamp}')">Éditer</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteMatchup('${m.myChamp}', '${m.enemyChamp}')">Effacer</button>
+                    <button class="btn btn-accent btn-sm" onclick="launchFocusMode('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Focus</button>
+                    <button class="btn btn-secondary btn-sm" onclick="editMatchup('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Éditer</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteMatchup('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Effacer</button>
                 </div>
             </div>
         `;
@@ -460,7 +536,18 @@ function setupSingleDropdown(containerId, optionsId, restrictToPool) {
     function filterOptions(query) {
         optionsContainer.innerHTML = '';
         
-        const listToFilter = restrictToPool ? state.championPool : championsList.map(c => c.id);
+        let listToFilter = [];
+        if (restrictToPool) {
+            let role = 'TOP';
+            if (containerId === 'quick-my-champ-select') {
+                role = document.getElementById('quick-role-select').value;
+            } else if (containerId === 'editor-my-champ-select') {
+                role = document.getElementById('editor-role-select').value;
+            }
+            listToFilter = state.championPool[role] || [];
+        } else {
+            listToFilter = championsList.map(c => c.id);
+        }
         
         let found = false;
         listToFilter.forEach(champId => {
@@ -532,11 +619,14 @@ function setCustomSelectValue(containerId, champId) {
 // --- Action Handlers ---
 
 // State operations
-function addChampionToPool(champId) {
-    if (state.championPool.includes(champId)) return;
+function addChampionToPool(champId, role = activeRole) {
+    if (!state.championPool[role]) {
+        state.championPool[role] = [];
+    }
+    if (state.championPool[role].includes(champId)) return;
     
-    state.championPool.push(champId);
-    state.championPool.sort();
+    state.championPool[role].push(champId);
+    state.championPool[role].sort();
     saveData();
     renderChampionPool();
     renderDashboard();
@@ -544,13 +634,13 @@ function addChampionToPool(champId) {
     // Refresh dropdown containers to show updated pool
     setupCustomDropdowns();
     
-    showNotification(`${championsData[champId]?.name} a été ajouté à votre pool.`, "success");
+    showNotification(`${championsData[champId]?.name} a été ajouté à votre pool (${role}).`, "success");
 }
 
-function removeChampionFromPool(champId) {
-    if (!confirm(`Voulez-vous retirer ${championsData[champId]?.name} de votre pool ? Vos matchups associés seront conservés.`)) return;
+function removeChampionFromPool(champId, role = activeRole) {
+    if (!confirm(`Voulez-vous retirer ${championsData[champId]?.name} de votre pool (${role}) ? Vos matchups associés seront conservés.`)) return;
 
-    state.championPool = state.championPool.filter(id => id !== champId);
+    state.championPool[role] = (state.championPool[role] || []).filter(id => id !== champId);
     saveData();
     renderChampionPool();
     renderDashboard();
@@ -558,7 +648,7 @@ function removeChampionFromPool(champId) {
     // Refresh dropdowns
     setupCustomDropdowns();
     
-    showNotification(`${championsData[champId]?.name} retiré du pool.`, "warning");
+    showNotification(`${championsData[champId]?.name} retiré du pool (${role}).`, "warning");
 }
 
 // Open / Close modal for selecting pool champion
@@ -589,7 +679,7 @@ function renderModalChampions(query) {
     }
 
     filtered.forEach(c => {
-        const inPool = state.championPool.includes(c.id);
+        const inPool = (state.championPool[activeRole] || []).includes(c.id);
         const btn = document.createElement('button');
         btn.className = `modal-champ-btn ${inPool ? 'in-pool' : ''}`;
         btn.innerHTML = `
@@ -599,7 +689,7 @@ function renderModalChampions(query) {
 
         if (!inPool) {
             btn.addEventListener('click', () => {
-                addChampionToPool(c.id);
+                addChampionToPool(c.id, activeRole);
                 closeModal();
             });
         }
@@ -620,15 +710,23 @@ function saveMatchupForm(e) {
         return;
     }
 
-    const key = `${myChamp}_${enemyChamp}`;
+    const role = document.getElementById('editor-role-select').value;
+    const key = `${role}_${myChamp}_${enemyChamp}`;
     const selectedDifficulty = document.querySelector('input[name="difficulty"]:checked').value;
     
+    // If the key changed during modification, delete the old key to prevent duplicates
+    const oldKey = document.getElementById('matchup-id').value;
+    if (oldKey && oldKey !== key) {
+        delete state.matchups[oldKey];
+    }
+
     state.matchups[key] = {
         id: key,
         myChamp: myChamp,
         enemyChamp: enemyChamp,
         difficulty: selectedDifficulty,
-        role: document.getElementById('matchup-role').value.trim(),
+        role: role,
+        style: document.getElementById('matchup-style').value.trim(),
         runes: document.getElementById('matchup-runes').value.trim(),
         items: document.getElementById('matchup-items').value.trim(),
         early: document.getElementById('matchup-early').value.trim(),
@@ -638,7 +736,7 @@ function saveMatchupForm(e) {
     };
 
     saveData();
-    showNotification(`Matchup ${championsData[myChamp].name} VS ${championsData[enemyChamp].name} enregistré.`, "success");
+    showNotification(`Matchup [${role}] ${championsData[myChamp].name} VS ${championsData[enemyChamp].name} enregistré.`, "success");
 
     // Reset Form
     resetMatchupForm();
@@ -649,11 +747,17 @@ function saveMatchupForm(e) {
 
 function resetMatchupForm() {
     document.getElementById('matchup-id').value = '';
+    document.getElementById('editor-role-select').value = 'TOP';
+    
+    // Trigger change to refresh custom select options for top lane
+    const event = new Event('change');
+    document.getElementById('editor-role-select').dispatchEvent(event);
+    
     resetCustomSelect('editor-my-champ-select');
     resetCustomSelect('editor-enemy-champ-select');
     
     document.querySelector('input[name="difficulty"][value="easy"]').checked = true;
-    document.getElementById('matchup-role').value = '';
+    document.getElementById('matchup-style').value = '';
     document.getElementById('matchup-runes').value = '';
     document.getElementById('matchup-items').value = '';
     document.getElementById('matchup-early').value = '';
@@ -666,8 +770,8 @@ function resetMatchupForm() {
 }
 
 // Edit Matchup loader
-window.editMatchup = function(myChamp, enemyChamp) {
-    const key = `${myChamp}_${enemyChamp}`;
+window.editMatchup = function(myChamp, enemyChamp, role) {
+    const key = `${role}_${myChamp}_${enemyChamp}`;
     const m = state.matchups[key];
     if (!m) return;
 
@@ -676,11 +780,17 @@ window.editMatchup = function(myChamp, enemyChamp) {
 
     // Fill form
     document.getElementById('matchup-id').value = key;
+    document.getElementById('editor-role-select').value = m.role;
+    
+    // Trigger change to update Mon Champion options list
+    const event = new Event('change');
+    document.getElementById('editor-role-select').dispatchEvent(event);
+
     setCustomSelectValue('editor-my-champ-select', m.myChamp);
     setCustomSelectValue('editor-enemy-champ-select', m.enemyChamp);
     
     document.querySelector(`input[name="difficulty"][value="${m.difficulty}"]`).checked = true;
-    document.getElementById('matchup-role').value = m.role || '';
+    document.getElementById('matchup-style').value = m.style || '';
     document.getElementById('matchup-runes').value = m.runes || '';
     document.getElementById('matchup-items').value = m.items || '';
     document.getElementById('matchup-early').value = m.early || '';
@@ -688,29 +798,29 @@ window.editMatchup = function(myChamp, enemyChamp) {
     document.getElementById('matchup-tips').value = m.tips || '';
 
     // Customize title for modification mode
-    document.getElementById('editor-title').textContent = `Modifier le Matchup : ${championsData[myChamp]?.name || myChamp} VS ${championsData[enemyChamp]?.name || enemyChamp}`;
+    document.getElementById('editor-title').textContent = `Modifier le Matchup : [${role}] ${championsData[myChamp]?.name || myChamp} VS ${championsData[enemyChamp]?.name || enemyChamp}`;
     document.getElementById('editor-subtitle').textContent = "Mettez à jour vos notes de combat.";
 };
 
 // Delete Matchup operation
-window.deleteMatchup = function(myChamp, enemyChamp) {
-    const key = `${myChamp}_${enemyChamp}`;
+window.deleteMatchup = function(myChamp, enemyChamp, role) {
+    const key = `${role}_${myChamp}_${enemyChamp}`;
     const myName = championsData[myChamp]?.name || myChamp;
     const enemyName = championsData[enemyChamp]?.name || enemyChamp;
 
-    if (!confirm(`Effacer définitivement vos notes pour ${myName} VS ${enemyName} ?`)) return;
+    if (!confirm(`Effacer définitivement vos notes pour [${role}] ${myName} VS ${enemyName} ?`)) return;
 
     delete state.matchups[key];
     saveData();
     renderDashboard();
     renderMatchupsList();
 
-    showNotification(`Matchup ${myName} VS ${enemyName} effacé.`, "warning");
+    showNotification(`Matchup [${role}] ${myName} VS ${enemyName} effacé.`, "warning");
 };
 
 // --- Focus Mode Controller ---
-window.launchFocusMode = function(myChamp, enemyChamp) {
-    const key = `${myChamp}_${enemyChamp}`;
+window.launchFocusMode = function(myChamp, enemyChamp, role) {
+    const key = `${role}_${myChamp}_${enemyChamp}`;
     const m = state.matchups[key];
     if (!m) {
         alert("Ce matchup n'est pas encore documenté. Veuillez le créer d'abord !");
@@ -751,7 +861,10 @@ window.launchFocusMode = function(myChamp, enemyChamp) {
     diffCard.innerHTML = `
         <span class="focus-diff-title">Difficulté Matchup</span>
         <span class="focus-diff-val ${m.difficulty}">${difficultyLabelMap[m.difficulty]}</span>
-        <span class="focus-role-val">${m.role || 'Général'}</span>
+        <span class="focus-role-val">
+            <span class="role-badge ${m.role.toLowerCase()}" style="margin-right:6px; border:none; padding:0; background:none;">${m.role}</span>
+            - ${m.style || 'Général'}
+        </span>
     `;
 
     // Sections texts
@@ -818,9 +931,45 @@ function importData(e) {
         try {
             const imported = JSON.parse(evt.target.result);
             
-            // Validation basic schema
-            if (imported.championPool && Array.isArray(imported.championPool) && imported.matchups && typeof imported.matchups === 'object') {
-                state = imported;
+            // Validation basic schema & migration if needed
+            if (imported.championPool && imported.matchups && typeof imported.matchups === 'object') {
+                let cleanPool = {};
+                if (Array.isArray(imported.championPool)) {
+                    cleanPool = {
+                        TOP: imported.championPool,
+                        JUNGLE: [],
+                        MID: [],
+                        ADC: [],
+                        SUPPORT: []
+                    };
+                } else {
+                    cleanPool = imported.championPool;
+                }
+                
+                let cleanMatchups = {};
+                for (const [key, m] of Object.entries(imported.matchups)) {
+                    let cleanRole = m.role || 'TOP';
+                    const r = cleanRole.toLowerCase();
+                    if (r.includes('top')) cleanRole = 'TOP';
+                    else if (r.includes('jungle') || r.includes('jng')) cleanRole = 'JUNGLE';
+                    else if (r.includes('mid')) cleanRole = 'MID';
+                    else if (r.includes('adc') || r.includes('bot') || r.includes('botlane')) cleanRole = 'ADC';
+                    else if (r.includes('sup') || r.includes('support')) cleanRole = 'SUPPORT';
+                    
+                    const newKey = key.startsWith(`${cleanRole}_`) ? key : `${cleanRole}_${m.myChamp}_${m.enemyChamp}`;
+                    cleanMatchups[newKey] = {
+                        ...m,
+                        id: newKey,
+                        role: cleanRole,
+                        style: m.style || m.role || ''
+                    };
+                }
+                
+                state = {
+                    championPool: cleanPool,
+                    matchups: cleanMatchups
+                };
+                
                 saveData();
                 renderAllViews();
                 showNotification("Données importées avec succès !", "success");
@@ -843,7 +992,13 @@ function resetAllData() {
         return;
     }
 
-    state.championPool = [];
+    state.championPool = {
+        TOP: [],
+        JUNGLE: [],
+        MID: [],
+        ADC: [],
+        SUPPORT: []
+    };
     state.matchups = {};
     saveData();
     
@@ -896,6 +1051,19 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
+// --- Role Tabs UI Setup ---
+function setupRoleTabs() {
+    const tabs = document.querySelectorAll('.role-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            activeRole = tab.getAttribute('data-role');
+            renderChampionPool();
+        });
+    });
+}
+
 // --- Event Listeners Setup ---
 function setupEventListeners() {
     // Add Champion Modal triggers
@@ -917,17 +1085,30 @@ function setupEventListeners() {
     // Quick Checker listeners for enabling buttons on change
     document.getElementById('quick-my-champ-select')?.addEventListener('change', updateQuickCheckBtnStates);
     document.getElementById('quick-enemy-champ-select')?.addEventListener('change', updateQuickCheckBtnStates);
+    
+    // Quick Checker role select change
+    document.getElementById('quick-role-select')?.addEventListener('change', () => {
+        resetCustomSelect('quick-my-champ-select');
+        updateQuickCheckBtnStates();
+    });
+
+    // Editor role select change
+    document.getElementById('editor-role-select')?.addEventListener('change', () => {
+        resetCustomSelect('editor-my-champ-select');
+    });
 
     // Quick Checker Trigger Actions
     document.getElementById('quick-search-btn')?.addEventListener('click', () => {
         const myChamp = document.getElementById('quick-my-champ-select').querySelector('.select-trigger').dataset.value;
         const enemyChamp = document.getElementById('quick-enemy-champ-select').querySelector('.select-trigger').dataset.value;
+        const role = document.getElementById('quick-role-select').value;
         
         if (myChamp && enemyChamp) {
             // Apply filters to matchups tab
             const searchInput = document.getElementById('matchups-search-input');
             searchInput.value = ''; // clear text search
             
+            document.getElementById('filter-role').value = role;
             document.getElementById('filter-my-champ').value = myChamp;
             document.getElementById('filter-difficulty').value = 'all';
 
@@ -942,9 +1123,10 @@ function setupEventListeners() {
     document.getElementById('quick-focus-btn')?.addEventListener('click', () => {
         const myChamp = document.getElementById('quick-my-champ-select').querySelector('.select-trigger').dataset.value;
         const enemyChamp = document.getElementById('quick-enemy-champ-select').querySelector('.select-trigger').dataset.value;
+        const role = document.getElementById('quick-role-select').value;
         
         if (myChamp && enemyChamp) {
-            launchFocusMode(myChamp, enemyChamp);
+            launchFocusMode(myChamp, enemyChamp, role);
         }
     });
 
@@ -958,6 +1140,7 @@ function setupEventListeners() {
     document.getElementById('matchups-search-input')?.addEventListener('input', renderMatchupsList);
     document.getElementById('filter-difficulty')?.addEventListener('change', renderMatchupsList);
     document.getElementById('filter-my-champ')?.addEventListener('change', renderMatchupsList);
+    document.getElementById('filter-role')?.addEventListener('change', renderMatchupsList);
 
     // Settings actions
     document.getElementById('export-data-btn')?.addEventListener('click', exportData);

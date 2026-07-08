@@ -77,6 +77,17 @@
                         <h3>Recherche Rapide Matchup</h3>
                         <p>Sélectionnez vos champions pour afficher les notes instantanément</p>
                         
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label>Rôle pour le matchup</label>
+                            <select id="quick-role-select" class="custom-select-small" style="width: 100%; max-width: none;">
+                                <option value="TOP">TOP (Toplane)</option>
+                                <option value="JUNGLE">JUNGLE (Jungle)</option>
+                                <option value="MID">MID (Midlane)</option>
+                                <option value="ADC">ADC (Botlane)</option>
+                                <option value="SUPPORT">SUPPORT (Support)</option>
+                            </select>
+                        </div>
+                        
                         <div class="matchup-picker-row">
                             <div class="champion-select-box">
                                 <label>Mon Champion</label>
@@ -184,6 +195,14 @@
                     </button>
                 </header>
 
+                <div class="role-tabs-bar">
+                    <button class="role-tab active" data-role="TOP">TOP</button>
+                    <button class="role-tab" data-role="JUNGLE">JUNGLE</button>
+                    <button class="role-tab" data-role="MID">MID</button>
+                    <button class="role-tab" data-role="ADC">ADC</button>
+                    <button class="role-tab" data-role="SUPPORT">SUPPORT</button>
+                </div>
+
                 <div class="pool-grid" id="pool-grid-container">
                     <!-- Champion Pool Cards will be rendered dynamically here -->
                     <div class="empty-state">
@@ -210,6 +229,14 @@
                         <input type="text" id="matchups-search-input" placeholder="Filtrer par champion (ex: Camille)...">
                     </div>
                     <div class="filter-options">
+                        <select id="filter-role" class="custom-select-small">
+                            <option value="all">Tous les rôles</option>
+                            <option value="TOP">TOP (Toplane)</option>
+                            <option value="JUNGLE">JUNGLE (Jungle)</option>
+                            <option value="MID">MID (Midlane)</option>
+                            <option value="ADC">ADC (Botlane)</option>
+                            <option value="SUPPORT">SUPPORT (Support)</option>
+                        </select>
                         <select id="filter-difficulty" class="custom-select-small">
                             <option value="all">Toutes les difficultés</option>
                             <option value="easy">Facile</option>
@@ -241,6 +268,17 @@
                     <form id="matchup-form">
                         <input type="hidden" id="matchup-id">
                         
+                        <div class="form-group" style="max-width: 320px; margin: 0 auto 24px auto;">
+                            <label for="editor-role-select">Rôle pour ce matchup <span class="required">*</span></label>
+                            <select id="editor-role-select" class="form-control">
+                                <option value="TOP">TOP (Toplane)</option>
+                                <option value="JUNGLE">JUNGLE (Jungle)</option>
+                                <option value="MID">MID (Midlane)</option>
+                                <option value="ADC">ADC (Botlane)</option>
+                                <option value="SUPPORT">SUPPORT (Support)</option>
+                            </select>
+                        </div>
+
                         <div class="editor-header-row">
                             <div class="champion-select-box">
                                 <label>Mon Champion <span class="required">*</span></label>
@@ -296,8 +334,8 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="matchup-winrate">Note d'aisance / Rôle</label>
-                                <input type="text" id="matchup-role" placeholder="ex: Toplane, Win lane, Farm lane..." class="form-control">
+                                <label for="matchup-style">Style de jeu / Aisance</label>
+                                <input type="text" id="matchup-style" placeholder="ex: Win lane, Farm lane, Splitpush..." class="form-control">
                             </div>
                         </div>
 
