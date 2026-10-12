@@ -37,21 +37,13 @@
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                     Champion Pool
                 </button>
-                <button class="nav-item" data-tab="matchups">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M3 20h9M4 12h16M4 4h16M12 4v16"/></svg>
-                    Mes Matchups
+                <button class="nav-item" data-tab="all-matchups" id="nav-all-matchups-btn">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+                    Matchups & Duels
                 </button>
                 <button class="nav-item" data-tab="guides" id="nav-guides-btn">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                    Guides & Stratégies
-                </button>
-                <button class="nav-item" data-tab="all-matchups" id="nav-all-matchups-btn">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
-                    Tous les Matchups
-                </button>
-                <button class="nav-item" data-tab="editor" id="nav-editor-btn">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    Ajouter/Modifier
+                    Guides des Champions
                 </button>
                 <button class="nav-item focus-btn" data-tab="focus-mode">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
@@ -75,15 +67,42 @@
                 <header class="content-header">
                     <div>
                         <h2>Tableau de Bord</h2>
-                        <p class="subtitle">Vos raccourcis et statistiques de matchups</p>
+                        <p class="subtitle">Votre assistant stratégique et simulateur de duels en direct</p>
                     </div>
                 </header>
+
+                <!-- Onboarding banner: 3 étapes pour tout comprendre -->
+                <div class="dashboard-banner">
+                    <div class="banner-step">
+                        <span class="step-num">1</span>
+                        <div class="step-txt">
+                            <strong>Champion Pool</strong>
+                            <p>Organisez vos champions favoris selon votre rôle</p>
+                        </div>
+                    </div>
+                    <span class="banner-arrow">→</span>
+                    <div class="banner-step">
+                        <span class="step-num">2</span>
+                        <div class="step-txt">
+                            <strong>Matchups & Duels</strong>
+                            <p>Tous les duels sont déjà analysés (sorts, spikes, vagues)</p>
+                        </div>
+                    </div>
+                    <span class="banner-arrow">→</span>
+                    <div class="banner-step">
+                        <span class="step-num">3</span>
+                        <div class="step-txt">
+                            <strong>Modifier & Focus</strong>
+                            <p>Ajustez vos astuces directes et lancez le Focus 2e écran</p>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="dashboard-grid">
                     <!-- Quick Matchup Checker -->
                     <div class="card col-2 quick-check-card">
-                        <h3>Recherche Rapide Matchup</h3>
-                        <p>Sélectionnez vos champions pour afficher les notes instantanément</p>
+                        <h3>Recherche Rapide & Duel Direct</h3>
+                        <p>Sélectionnez deux champions pour afficher instantanément l'analyse tactique et vos remarques</p>
                         
                         <div class="form-group" style="margin-bottom: 16px;">
                             <label>Rôle pour le matchup</label>
@@ -128,15 +147,17 @@
                             </div>
                         </div>
 
-                        <div class="quick-check-actions">
-                            <button id="quick-search-btn" class="btn btn-primary" disabled>Voir le Matchup</button>
-                            <button id="quick-focus-btn" class="btn btn-accent" disabled>Lancer le Mode Focus</button>
+                        <!-- Live Matchup Preview Card inserted dynamically -->
+                        <div id="quick-matchup-preview" class="quick-matchup-preview-container">
+                            <div class="preview-prompt-text text-muted">
+                                💡 Choisissez votre champion et votre adversaire ci-dessus pour afficher l'analyse tactique complète.
+                            </div>
                         </div>
                     </div>
 
                     <!-- Statistics Card -->
                     <div class="card stats-card">
-                        <h3>Statistiques</h3>
+                        <h3>Statistiques & Synthèse</h3>
                         <div class="stats-grid">
                             <div class="stat-item">
                                 <span class="stat-val" id="stat-pool-count">0</span>
@@ -144,11 +165,11 @@
                             </div>
                             <div class="stat-item">
                                 <span class="stat-val" id="stat-matchup-count">0</span>
-                                <span class="stat-lbl">Matchups Définis</span>
+                                <span class="stat-lbl">Matchups Personnalisés</span>
                             </div>
                         </div>
                         <div class="difficulty-breakdown">
-                            <h4>Par difficulté :</h4>
+                            <h4>Répartition des difficultés :</h4>
                             <div class="diff-bar-container">
                                 <div class="diff-bar easy" style="width: 0%" title="Facile"></div>
                                 <div class="diff-bar medium" style="width: 0%" title="Moyen"></div>
@@ -164,24 +185,32 @@
                         </div>
                     </div>
 
-                    <!-- Recent Matchups -->
+                    <!-- Mes Matchups Personnalisés -->
                     <div class="card col-3 recent-matchups-card">
-                        <h3>Derniers Matchups Édités</h3>
+                        <div class="recent-header-row">
+                            <div>
+                                <h3>Mes Matchups Personnalisés</h3>
+                                <p class="subtitle" style="margin-bottom: 0;">Les duels où vous avez ajouté vos propres astuces ou ajusté la difficulté</p>
+                            </div>
+                            <button id="dashboard-explore-matrix-btn" class="btn btn-sm btn-secondary">
+                                ⚔️ Ouvrir la Matrice Complète
+                            </button>
+                        </div>
                         <div class="table-responsive">
                             <table class="data-table">
                                 <thead>
                                     <tr>
                                         <th>Mon Champ</th>
-                                        <th>VS</th>
+                                        <th>Rôle</th>
                                         <th>Adversaire</th>
                                         <th>Difficulté</th>
-                                        <th>Dernière modification</th>
+                                        <th>Votre Note Personnelle</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="recent-matchups-tbody">
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">Aucun matchup pour le moment. Allez dans "Mon Pool" pour commencer.</td>
+                                        <td colspan="6" class="text-center text-muted">Tous les duels sont déjà calculés par défaut ! Modifiez un duel pour y inscrire vos propres notes.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -195,7 +224,7 @@
                 <header class="content-header">
                     <div>
                         <h2>Mon Champion Pool</h2>
-                        <p class="subtitle">Gérez la liste des champions que vous jouez en partie</p>
+                        <p class="subtitle">Gérez vos champions favoris par rôle pour filtrer rapidement vos duels</p>
                     </div>
                     <button id="add-pool-champ-btn" class="btn btn-primary">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:8px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -219,47 +248,6 @@
                         <p>Commencez par ajouter les champions que vous jouez régulièrement pour pouvoir documenter vos matchups.</p>
                         <button class="btn btn-primary btn-add-first-champ">Ajouter mon premier champion</button>
                     </div>
-                </div>
-            </section>
-
-            <!-- TAB: Mes Matchups -->
-            <section id="matchups" class="tab-content">
-                <header class="content-header">
-                    <div>
-                        <h2>Mes Matchups Documentés</h2>
-                        <p class="subtitle">La liste complète de vos notes stratégiques</p>
-                    </div>
-                </header>
-
-                <div class="filter-bar">
-                    <div class="search-box">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <input type="text" id="matchups-search-input" placeholder="Filtrer par champion (ex: Camille)...">
-                    </div>
-                    <div class="filter-options">
-                        <select id="filter-role" class="custom-select-small">
-                            <option value="all">Tous les rôles</option>
-                            <option value="TOP">TOP (Toplane)</option>
-                            <option value="JUNGLE">JUNGLE (Jungle)</option>
-                            <option value="MID">MID (Midlane)</option>
-                            <option value="ADC">ADC (Botlane)</option>
-                            <option value="SUPPORT">SUPPORT (Support)</option>
-                        </select>
-                        <select id="filter-difficulty" class="custom-select-small">
-                            <option value="all">Toutes les difficultés</option>
-                            <option value="easy">Facile</option>
-                            <option value="medium">Moyen</option>
-                            <option value="hard">Difficile</option>
-                            <option value="skill">Skill Matchup</option>
-                        </select>
-                        <select id="filter-my-champ" class="custom-select-small">
-                            <option value="all">Tous mes champions</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="matchups-list-grid" id="matchups-list-container">
-                    <!-- Matchup list cards will be rendered dynamically here -->
                 </div>
             </section>
 
@@ -427,127 +415,7 @@
                 </div>
             </section>
 
-            <!-- TAB: Matchup Editor -->
-            <section id="editor" class="tab-content">
-                <header class="content-header">
-                    <div>
-                        <h2 id="editor-title">Créer un Matchup</h2>
-                        <p class="subtitle" id="editor-subtitle">Documentez vos stratégies, builds et astuces contre un adversaire</p>
-                    </div>
-                </header>
 
-                <div class="card editor-card">
-                    <form id="matchup-form">
-                        <input type="hidden" id="matchup-id">
-                        
-                        <div class="form-group" style="max-width: 320px; margin: 0 auto 24px auto;">
-                            <label for="editor-role-select">Rôle pour ce matchup <span class="required">*</span></label>
-                            <select id="editor-role-select" class="form-control">
-                                <option value="TOP">TOP (Toplane)</option>
-                                <option value="JUNGLE">JUNGLE (Jungle)</option>
-                                <option value="MID">MID (Midlane)</option>
-                                <option value="ADC">ADC (Botlane)</option>
-                                <option value="SUPPORT">SUPPORT (Support)</option>
-                            </select>
-                        </div>
-
-                        <div class="editor-header-row">
-                            <div class="champion-select-box">
-                                <label>Mon Champion <span class="required">*</span></label>
-                                <div class="custom-select" id="editor-my-champ-select">
-                                    <div class="select-trigger">
-                                        <span class="champ-avatar placeholder"></span>
-                                        <span class="champ-name">Choisir...</span>
-                                    </div>
-                                    <div class="select-dropdown-list hidden">
-                                        <input type="text" class="select-search" placeholder="Rechercher dans mon pool...">
-                                        <div class="select-options-container" id="editor-my-options"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="vs-divider-large">VS</div>
-
-                            <div class="champion-select-box">
-                                <label>Champion Adversaire <span class="required">*</span></label>
-                                <div class="custom-select" id="editor-enemy-champ-select">
-                                    <div class="select-trigger">
-                                        <span class="champ-avatar placeholder"></span>
-                                        <span class="champ-name">Choisir...</span>
-                                    </div>
-                                    <div class="select-dropdown-list hidden">
-                                        <input type="text" class="select-search" placeholder="Rechercher un champion...">
-                                        <div class="select-options-container" id="editor-enemy-options"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-row grid-2">
-                            <div class="form-group">
-                                <label for="matchup-difficulty">Difficulté globale</label>
-                                <div class="difficulty-selector">
-                                    <label class="diff-radio-btn easy">
-                                        <input type="radio" name="difficulty" value="easy" checked>
-                                        <span>Facile</span>
-                                    </label>
-                                    <label class="diff-radio-btn medium">
-                                        <input type="radio" name="difficulty" value="medium">
-                                        <span>Moyen</span>
-                                    </label>
-                                    <label class="diff-radio-btn hard">
-                                        <input type="radio" name="difficulty" value="hard">
-                                        <span>Difficile</span>
-                                    </label>
-                                    <label class="diff-radio-btn skill">
-                                        <input type="radio" name="difficulty" value="skill">
-                                        <span>Skill</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="matchup-style">Style de jeu / Aisance</label>
-                                <input type="text" id="matchup-style" placeholder="ex: Win lane, Farm lane, Splitpush..." class="form-control">
-                            </div>
-                        </div>
-
-                        <hr class="form-divider">
-
-                        <div class="form-row grid-2">
-                            <div class="form-group">
-                                <label for="matchup-runes">Configuration des Runes</label>
-                                <textarea id="matchup-runes" rows="3" placeholder="ex: Conquérant + Volonté (Second souffle / Revitalisation). Prendre de l'armure brute en stats." class="form-control text-area-custom"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="matchup-items">Build / Spikes d'objets</label>
-                                <textarea id="matchup-items" rows="3" placeholder="ex: Rush Hydre Vorace pour le sustain, puis Trinité. Prendre Tabis d'acier en priorité." class="form-control text-area-custom"></textarea>
-                            </div>
-                        </div>
-
-                        <hr class="form-divider">
-
-                        <div class="form-group">
-                            <label for="matchup-early">Phase de lignes (Early Game / Niveaux 1-3)</label>
-                            <textarea id="matchup-early" rows="3" placeholder="ex: Respecter son niveau 1. On peut l'agresser au niveau 2 si son sort E est en cooldown." class="form-control text-area-custom"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="matchup-mid">Milieu et fin de partie (Mid / Late Game & Teamfights)</label>
-                            <textarea id="matchup-mid" rows="3" placeholder="ex: Splitpush efficace, il ne peut pas nous défendre en 1v1 après 2 items. En teamfight, focus la backline." class="form-control text-area-custom"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="matchup-tips">Conseils clés et astuces (Détails mécaniques, Cooldowns)</label>
-                            <textarea id="matchup-tips" rows="3" placeholder="ex: Utiliser notre R pour esquiver son étourdissement. Punir quand il rate son Z." class="form-control text-area-custom"></textarea>
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" id="cancel-edit-btn">Annuler</button>
-                            <button type="submit" class="btn btn-primary" id="save-matchup-btn">Enregistrer le Matchup</button>
-                        </div>
-                    </form>
-                </div>
-            </section>
 
             <!-- TAB: Focus Mode -->
             <section id="focus-mode" class="tab-content">
@@ -561,6 +429,9 @@
                             <span class="pulse-dot"></span>
                             MODE FOCUS CHARGEMENT
                         </div>
+                        <button class="btn btn-primary btn-sm" id="focus-edit-matchup-btn">
+                            ✏️ Modifier ce Matchup
+                        </button>
                     </div>
 
                     <div class="focus-vs-header" id="focus-champ-headers">
@@ -672,6 +543,88 @@
                         <p>Chargement des champions depuis Riot Games...</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Direct Matchup Customization -->
+    <div class="modal hidden" id="edit-matchup-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <div class="modal-title-with-badges">
+                    <h3 id="edit-modal-title">Modifier le Matchup</h3>
+                    <span class="role-badge" id="edit-modal-role-badge">TOP</span>
+                </div>
+                <button class="modal-close" id="close-edit-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-matchup-duo-banner" id="edit-modal-duo-banner">
+                    <!-- Champion avatars & names populated dynamically -->
+                </div>
+
+                <form id="inline-matchup-form">
+                    <input type="hidden" id="edit-modal-my-champ">
+                    <input type="hidden" id="edit-modal-enemy-champ">
+                    <input type="hidden" id="edit-modal-lane">
+
+                    <div class="form-group">
+                        <label>Difficulté ressentie</label>
+                        <div class="difficulty-selector">
+                            <label class="diff-radio-btn easy">
+                                <input type="radio" name="modal-difficulty" value="easy">
+                                <span>Facile</span>
+                            </label>
+                            <label class="diff-radio-btn medium">
+                                <input type="radio" name="modal-difficulty" value="medium">
+                                <span>Moyen</span>
+                            </label>
+                            <label class="diff-radio-btn hard">
+                                <input type="radio" name="modal-difficulty" value="hard">
+                                <span>Difficile</span>
+                            </label>
+                            <label class="diff-radio-btn skill">
+                                <input type="radio" name="modal-difficulty" value="skill">
+                                <span>Skill Matchup</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-modal-tips">💡 Votre Astuce Clé / Conseil perso <span class="text-muted">(prioritaire en Mode Focus)</span></label>
+                        <textarea id="edit-modal-tips" rows="3" class="form-control text-area-custom" placeholder="ex: Bait son par terre caillou et la one shot. Dodge execut avec le Z..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-modal-spell">⚠️ Sort critique adverse à surveiller</label>
+                        <input type="text" id="edit-modal-spell" class="form-control" placeholder="ex: E (Cage de Veigar), R (Massacre)...">
+                    </div>
+
+                    <div class="form-row grid-2">
+                        <div class="form-group">
+                            <label for="edit-modal-early">🌊 Gestion de vague & Early Game</label>
+                            <textarea id="edit-modal-early" rows="3" class="form-control text-area-custom" placeholder="ex: Respecter niveau 1-3. Crash la vague 3 pour reset..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-modal-mid">🎯 Timing de All-in & Mid/Late</label>
+                            <textarea id="edit-modal-mid" rows="3" class="form-control text-area-custom" placeholder="ex: All-in dès qu'il rate son sort clé. Splitpush après 2 items..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-modal-items">🛡️ Runes & Équipement / Objets de contre</label>
+                        <input type="text" id="edit-modal-items" class="form-control" placeholder="ex: Tabis d'acier, Appel du bourreau, Conquérant...">
+                    </div>
+
+                    <div class="modal-form-actions">
+                        <button type="button" class="btn btn-outline-danger" id="edit-modal-reset-btn" style="display: none;">
+                            ↺ Rétablir par défaut
+                        </button>
+                        <div style="flex:1;"></div>
+                        <button type="button" class="btn btn-secondary" id="edit-modal-cancel-btn">Annuler</button>
+                        <button type="submit" class="btn btn-primary" id="edit-modal-save-btn">Enregistrer</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

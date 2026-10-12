@@ -196,8 +196,6 @@ function setupNavigation() {
                 renderDashboard();
             } else if (targetTab === 'champion-pool') {
                 renderChampionPool();
-            } else if (targetTab === 'matchups') {
-                renderMatchupsList();
             } else if (targetTab === 'guides') {
                 if (typeof renderGuidesView === 'function') {
                     renderGuidesView();
@@ -230,7 +228,6 @@ function setupNavigation() {
 function renderAllViews() {
     renderDashboard();
     renderChampionPool();
-    renderMatchupsList();
     setupCustomDropdowns();
     if (typeof renderGuidesView === 'function') {
         renderGuidesView();
@@ -244,12 +241,12 @@ function renderAllViews() {
 function renderDashboard() {
     // 1. Update stats count
     const poolCount = Object.values(state.championPool).reduce((acc, arr) => acc + arr.length, 0);
-    const matchupsCount = Object.keys(state.matchups).length;
+    const customCount = Object.keys(state.matchups).length;
 
     document.getElementById('stat-pool-count').textContent = poolCount;
-    document.getElementById('stat-matchup-count').textContent = matchupsCount;
+    document.getElementById('stat-matchup-count').textContent = customCount;
 
-    // 2. Compute difficulty breakdown
+    // 2. Compute difficulty breakdown among customized matchups
     let easy = 0, medium = 0, hard = 0, skill = 0;
     Object.values(state.matchups).forEach(m => {
         if (m.difficulty === 'easy') easy++;
@@ -263,29 +260,34 @@ function renderDashboard() {
     document.getElementById('count-hard').textContent = hard;
     document.getElementById('count-skill').textContent = skill;
 
-    const total = matchupsCount || 1; // Avoid divide by zero
+    const total = customCount || 1; // Avoid divide by zero
     document.querySelector('.diff-bar.easy').style.width = `${(easy / total) * 100}%`;
     document.querySelector('.diff-bar.medium').style.width = `${(medium / total) * 100}%`;
     document.querySelector('.diff-bar.hard').style.width = `${(hard / total) * 100}%`;
     document.querySelector('.diff-bar.skill').style.width = `${(skill / total) * 100}%`;
 
-    // 3. Render recent matchups table
+    // 3. Render recent customized matchups table
     const recentTbody = document.getElementById('recent-matchups-tbody');
     
     // Sort matchups by updatedAt desc
     const sortedMatchups = Object.values(state.matchups).sort((a, b) => {
-        return new Date(b.updatedAt) - new Date(a.updatedAt);
+        return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
     });
 
     if (sortedMatchups.length === 0) {
         recentTbody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center text-muted">Aucun matchup défini pour le moment. Allez dans "Mon Pool" pour commencer.</td>
+                <td colspan="6" class="text-center text-muted" style="padding: 28px 16px;">
+                    <div style="font-size: 15px; margin-bottom: 6px;">💡 <strong>Tous les duels sont déjà analysés par défaut !</strong></div>
+                    <p style="font-size: 13px; color: var(--color-text-muted);">
+                        Rendez-vous dans l'onglet <strong>Matchups & Duels</strong> ou utilisez la recherche ci-dessus : cliquez sur <em>✏️ Modifier</em> pour y ajouter vos propres astuces.
+                    </p>
+                </td>
             </tr>
         `;
     } else {
         recentTbody.innerHTML = '';
-        sortedMatchups.slice(0, 5).forEach(m => {
+        sortedMatchups.slice(0, 8).forEach(m => {
             const tr = document.createElement('tr');
             
             const difficultyLabelMap = {
@@ -295,13 +297,7 @@ function renderDashboard() {
                 'skill': 'Skill'
             };
 
-            const formattedDate = new Date(m.updatedAt).toLocaleDateString('fr-FR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            const notePreview = m.tips || m.customTip || m.early || 'Paramètres personnalisés';
 
             tr.innerHTML = `
                 <td>
@@ -311,7 +307,7 @@ function renderDashboard() {
                     </div>
                 </td>
                 <td class="text-center">
-                    <span class="role-badge ${m.role.toLowerCase()}">${m.role}</span>
+                    <span class="role-badge ${(m.role || 'TOP').toLowerCase()}">${m.role || 'TOP'}</span>
                 </td>
                 <td>
                     <div class="champ-badge">
@@ -320,13 +316,16 @@ function renderDashboard() {
                     </div>
                 </td>
                 <td>
-                    <span class="difficulty-tag ${m.difficulty}">${difficultyLabelMap[m.difficulty]}</span>
+                    <span class="difficulty-tag ${m.difficulty}">${difficultyLabelMap[m.difficulty] || m.difficulty}</span>
                 </td>
-                <td class="text-muted">${formattedDate}</td>
+                <td class="text-accent" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ⭐ ${notePreview}
+                </td>
                 <td>
                     <div class="actions-cell">
-                        <button class="btn btn-secondary btn-sm" onclick="launchFocusMode('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Focus</button>
-                        <button class="btn btn-secondary btn-sm" onclick="editMatchup('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Éditer</button>
+                        <button class="btn btn-accent btn-sm" onclick="launchFocusMode('${m.myChamp}', '${m.enemyChamp}', '${m.role || 'TOP'}')">Focus</button>
+                        <button class="btn btn-secondary btn-sm" onclick="openEditMatchupModal('${m.myChamp}', '${m.enemyChamp}', '${m.role || 'TOP'}')">Modifier</button>
+                        <button class="btn btn-icon-only btn-sm" title="Rétablir par défaut Riot" onclick="resetMatchupToDefault('${m.myChamp}', '${m.enemyChamp}', '${m.role || 'TOP'}')">↺</button>
                     </div>
                 </td>
             `;
@@ -334,8 +333,8 @@ function renderDashboard() {
         });
     }
 
-    // 4. Update Quick Matchup Trigger states
-    updateQuickCheckBtnStates();
+    // 4. Update Quick Matchup Live Preview
+    updateQuickMatchupPreview();
 }
 
 // Tab: Champion Pool
@@ -348,7 +347,7 @@ function renderChampionPool() {
             <div class="empty-state">
                 <div class="empty-icon">⭐</div>
                 <h3>Votre Champion Pool (${activeRole}) est vide</h3>
-                <p>Ajoutez d'abord les champions que vous jouez en ${activeRole} pour pouvoir documenter vos matchups.</p>
+                <p>Ajoutez d'abord les champions que vous jouez en ${activeRole} pour accéder directement à leurs duels et personnaliser vos matchups.</p>
                 <button class="btn btn-primary btn-add-first-champ" id="pool-empty-add-btn">Ajouter mon premier champion</button>
             </div>
         `;
@@ -362,8 +361,8 @@ function renderChampionPool() {
         const champ = championsData[champId];
         if (!champ) return;
 
-        // Count matchups for this champion in activeRole
-        const matchupCount = Object.values(state.matchups).filter(m => m.myChamp === champId && m.role === activeRole).length;
+        // Count customized matchups for this champion in activeRole
+        const customCount = Object.values(state.matchups).filter(m => m.myChamp === champId && m.role === activeRole && m.isCustom).length;
 
         const card = document.createElement('div');
         card.className = 'pool-card';
@@ -373,25 +372,17 @@ function renderChampionPool() {
             <div class="pool-card-name">${champ.name}</div>
             <div class="pool-card-title">${champ.title}</div>
             <div class="pool-card-stats">
-                <span><strong>${matchupCount}</strong> matchups</span>
+                <span><strong>${customCount}</strong> notes perso</span>
+                <span style="display:inline-block; margin-top:8px; font-size:11px; color:var(--gold-hextech); font-weight:600;">Voir les duels ➔</span>
             </div>
         `;
 
-        // Card action: click goes to matchups filtered by this champ, or prompts to add matchup
+        // Card action: click goes to matchups & duels for this champ and role
         card.addEventListener('click', (e) => {
             if (e.target.classList.contains('pool-card-remove-btn')) return;
-            
-            // Go to Matchups and filter by this champ and role
-            const filterSelect = document.getElementById('filter-my-champ');
-            filterSelect.value = champId;
-            
-            const filterRole = document.getElementById('filter-role');
-            filterRole.value = activeRole;
-            
-            renderMatchupsList();
-
-            // Switch to matchups tab
-            document.querySelector('.nav-item[data-tab="matchups"]').click();
+            if (typeof window.navigateToMatchupView === 'function') {
+                window.navigateToMatchupView(champId, activeRole);
+            }
         });
 
         // Remove btn action
@@ -404,130 +395,14 @@ function renderChampionPool() {
     });
 }
 
-// Tab: Matchups List
-function renderMatchupsList() {
-    const container = document.getElementById('matchups-list-container');
-    const searchVal = document.getElementById('matchups-search-input').value.toLowerCase().trim();
-    const filterRole = document.getElementById('filter-role').value;
-    const filterDifficulty = document.getElementById('filter-difficulty').value;
-    const filterMyChamp = document.getElementById('filter-my-champ').value;
-
-    // Filter matchups
-    const filtered = Object.values(state.matchups).filter(m => {
-        // Search query
-        const myName = (championsData[m.myChamp]?.name || m.myChamp).toLowerCase();
-        const enemyName = (championsData[m.enemyChamp]?.name || m.enemyChamp).toLowerCase();
-        const styleText = (m.style || '').toLowerCase();
-        const matchesSearch = myName.includes(searchVal) || enemyName.includes(searchVal) || m.role.toLowerCase().includes(searchVal) || styleText.includes(searchVal) || m.tips.toLowerCase().includes(searchVal);
-
-        // Role filter
-        const matchesRole = filterRole === 'all' || m.role === filterRole;
-
-        // Difficulty filter
-        const matchesDifficulty = filterDifficulty === 'all' || m.difficulty === filterDifficulty;
-
-        // My Champ filter
-        const matchesMyChamp = filterMyChamp === 'all' || m.myChamp === filterMyChamp;
-
-        return matchesSearch && matchesRole && matchesDifficulty && matchesMyChamp;
-    });
-
-    // Populate my champion filter dropdown in matchups tab
-    const myChampSelect = document.getElementById('filter-my-champ');
-    const currentSelection = myChampSelect.value;
-    myChampSelect.innerHTML = '<option value="all">Tous mes champions</option>';
-    
-    let poolChamps = [];
-    if (filterRole === 'all') {
-        const uniqueChamps = new Set();
-        Object.values(state.championPool).forEach(arr => arr.forEach(c => uniqueChamps.add(c)));
-        poolChamps = Array.from(uniqueChamps).sort();
-    } else {
-        poolChamps = state.championPool[filterRole] || [];
-    }
-
-    poolChamps.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = championsData[c]?.name || c;
-        myChampSelect.appendChild(opt);
-    });
-    
-    // Restore selection if it still exists in the filtered champion pool
-    if (poolChamps.includes(currentSelection) || currentSelection === 'all') {
-        myChampSelect.value = currentSelection;
-    } else {
-        myChampSelect.value = 'all';
-    }
-
-    if (filtered.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">📂</div>
-                <h3>Aucun matchup trouvé</h3>
-                <p>Aucune note ne correspond à vos filtres actuels ou vous n'avez pas encore documenté de matchup.</p>
-                <button class="btn btn-primary" onclick="document.getElementById('nav-editor-btn').click()">Rédiger ma première note</button>
-            </div>
-        `;
-        return;
-    }
-
-    container.innerHTML = '';
-    
-    filtered.forEach(m => {
-        const difficultyLabelMap = {
-            'easy': 'Facile',
-            'medium': 'Moyen',
-            'hard': 'Difficile',
-            'skill': 'Skill'
-        };
-
-        const card = document.createElement('div');
-        card.className = 'card matchup-list-card';
-        
-        card.innerHTML = `
-            <div class="matchup-card-header">
-                <div class="matchup-versus-display">
-                    <img src="${getChampSquareUrl(m.myChamp)}" alt="${m.myChamp}" title="${m.myChamp}">
-                    <span class="focus-vs-divider" style="font-size:16px;">VS</span>
-                    <img src="${getChampSquareUrl(m.enemyChamp)}" alt="${m.enemyChamp}" title="${m.enemyChamp}">
-                    <div class="matchup-versus-text">
-                        <span style="display:flex; gap:6px; align-items:center;">
-                            <span class="role-badge ${m.role.toLowerCase()}" style="padding:1px 5px; font-size:9px; line-height:1.2;">${m.role}</span>
-                            <span>${m.style || 'Général'}</span>
-                        </span>
-                        <strong>${championsData[m.myChamp]?.name || m.myChamp} vs ${championsData[m.enemyChamp]?.name || m.enemyChamp}</strong>
-                    </div>
-                </div>
-                <span class="difficulty-tag ${m.difficulty}">${difficultyLabelMap[m.difficulty]}</span>
-            </div>
-            <div class="matchup-card-body">
-                ${m.early ? `<div><strong>Early Game :</strong> <div class="matchup-snippet">${m.early.substring(0, 120)}${m.early.length > 120 ? '...' : ''}</div></div>` : ''}
-                ${m.tips ? `<div><strong>Conseil Clé :</strong> <div class="matchup-snippet" style="border-left-color: var(--blue-hextech);">${m.tips.substring(0, 120)}${m.tips.length > 120 ? '...' : ''}</div></div>` : ''}
-            </div>
-            <div class="matchup-card-footer">
-                <span class="matchup-date">Modifié le ${new Date(m.updatedAt).toLocaleDateString('fr-FR')}</span>
-                <div class="actions-cell">
-                    <button class="btn btn-accent btn-sm" onclick="launchFocusMode('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Focus</button>
-                    <button class="btn btn-secondary btn-sm" onclick="editMatchup('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Éditer</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteMatchup('${m.myChamp}', '${m.enemyChamp}', '${m.role}')">Effacer</button>
-                </div>
-            </div>
-        `;
-
-        container.appendChild(card);
-    });
-}
 
 // Custom Searchable Dropdown Setup
 function setupCustomDropdowns() {
     setupSingleDropdown('quick-my-champ-select', 'quick-my-options', true);
     setupSingleDropdown('quick-enemy-champ-select', 'quick-enemy-options', false);
-    setupSingleDropdown('editor-my-champ-select', 'editor-my-options', true);
-    setupSingleDropdown('editor-enemy-champ-select', 'editor-enemy-options', false);
 }
 
-function setupSingleDropdown(containerId, optionsId, restrictToPool) {
+function setupSingleDropdown(containerId, optionsId, isMyChamp) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -570,32 +445,36 @@ function setupSingleDropdown(containerId, optionsId, restrictToPool) {
     function filterOptions(query) {
         optionsContainer.innerHTML = '';
         
-        let listToFilter = [];
-        if (restrictToPool) {
-            let role = 'TOP';
-            if (containerId === 'quick-my-champ-select') {
-                role = document.getElementById('quick-role-select').value;
-            } else if (containerId === 'editor-my-champ-select') {
-                role = document.getElementById('editor-role-select').value;
-            }
-            listToFilter = state.championPool[role] || [];
+        const role = document.getElementById('quick-role-select')?.value || 'TOP';
+        const poolChamps = state.championPool[role] || [];
+        const laneChamps = (window.LANE_CHAMPIONS_POOL && window.LANE_CHAMPIONS_POOL[role]) || [];
+        
+        // Build list: if isMyChamp, show pool champions at top, followed by other lane champions, then remaining champions
+        let orderedChamps = [];
+        if (isMyChamp) {
+            poolChamps.forEach(c => { if (!orderedChamps.includes(c)) orderedChamps.push(c); });
+            laneChamps.forEach(c => { if (!orderedChamps.includes(c)) orderedChamps.push(c); });
+            championsList.forEach(c => { if (!orderedChamps.includes(c.id)) orderedChamps.push(c.id); });
         } else {
-            listToFilter = championsList.map(c => c.id);
+            laneChamps.forEach(c => { if (!orderedChamps.includes(c)) orderedChamps.push(c); });
+            championsList.forEach(c => { if (!orderedChamps.includes(c.id)) orderedChamps.push(c.id); });
         }
         
         let found = false;
-        listToFilter.forEach(champId => {
+        orderedChamps.forEach(champId => {
             const champ = championsData[champId];
             if (!champ) return;
 
             if (champ.name.toLowerCase().includes(query)) {
                 found = true;
+                const inPool = poolChamps.includes(champId);
                 const opt = document.createElement('div');
                 opt.className = 'select-option';
                 opt.dataset.id = champId;
                 opt.innerHTML = `
                     <img class="champ-avatar" src="${getChampSquareUrl(champId)}" alt="${champ.name}" style="width:24px;height:24px;">
                     <span>${champ.name}</span>
+                    ${(isMyChamp && inPool) ? '<span class="pool-tag-mini" style="font-size:10px; color:var(--gold-hextech); margin-left:auto;">⭐ Mon Pool</span>' : ''}
                 `;
 
                 opt.addEventListener('click', () => {
@@ -607,7 +486,7 @@ function setupSingleDropdown(containerId, optionsId, restrictToPool) {
         });
 
         if (!found) {
-            optionsContainer.innerHTML = '<div class="text-muted text-center" style="padding: 12px 0; font-size:13px;">Aucun champion</div>';
+            optionsContainer.innerHTML = '<div class="text-muted text-center" style="padding: 12px 0; font-size:13px;">Aucun champion trouvé</div>';
         }
     }
 
@@ -615,14 +494,13 @@ function setupSingleDropdown(containerId, optionsId, restrictToPool) {
         const champ = championsData[champId];
         trigger.querySelector('.champ-avatar').className = 'champ-avatar';
         trigger.querySelector('.champ-avatar').style.backgroundImage = `url('${getChampSquareUrl(champId)}')`;
-        trigger.querySelector('.champ-name').textContent = champ.name;
+        trigger.querySelector('.champ-name').textContent = champ?.name || champId;
         trigger.dataset.value = champId;
         
         dropdown.classList.add('hidden');
         
-        // Custom event on trigger to listen for selections
-        const event = new CustomEvent('change', { detail: { value: champId } });
-        container.dispatchEvent(event);
+        // Trigger live preview update
+        updateQuickMatchupPreview();
     }
 }
 
@@ -732,134 +610,98 @@ function renderModalChampions(query) {
     });
 }
 
-// Matchups Save
-function saveMatchupForm(e) {
-    e.preventDefault();
+// --- Live Quick Matchup Preview Controller ---
+function updateQuickMatchupPreview() {
+    const previewContainer = document.getElementById('quick-matchup-preview');
+    if (!previewContainer) return;
 
-    const myChamp = document.getElementById('editor-my-champ-select').querySelector('.select-trigger').dataset.value;
-    const enemyChamp = document.getElementById('editor-enemy-champ-select').querySelector('.select-trigger').dataset.value;
-    
+    const myChampTrigger = document.getElementById('quick-my-champ-select')?.querySelector('.select-trigger');
+    const enemyChampTrigger = document.getElementById('quick-enemy-champ-select')?.querySelector('.select-trigger');
+    const role = document.getElementById('quick-role-select')?.value || 'TOP';
+
+    const myChamp = myChampTrigger?.dataset.value;
+    const enemyChamp = enemyChampTrigger?.dataset.value;
+
     if (!myChamp || !enemyChamp) {
-        alert("Veuillez sélectionner vos deux champions.");
+        previewContainer.innerHTML = `
+            <div class="preview-prompt-text text-muted" style="padding: 16px 0; font-size: 13px; text-align: center;">
+                💡 Choisissez votre champion et votre adversaire ci-dessus pour afficher l'analyse tactique complète.
+            </div>
+        `;
         return;
     }
 
-    const role = document.getElementById('editor-role-select').value;
-    const key = `${role}_${myChamp}_${enemyChamp}`;
-    const selectedDifficulty = document.querySelector('input[name="difficulty"]:checked').value;
-    
-    // If the key changed during modification, delete the old key to prevent duplicates
-    const oldKey = document.getElementById('matchup-id').value;
-    if (oldKey && oldKey !== key) {
-        delete state.matchups[oldKey];
-    }
+    const m = window.getMatchupData ? window.getMatchupData(myChamp, enemyChamp, role) : window.generateMatchupAnalysis(myChamp, enemyChamp, role);
 
-    state.matchups[key] = {
-        id: key,
-        myChamp: myChamp,
-        enemyChamp: enemyChamp,
-        difficulty: selectedDifficulty,
-        role: role,
-        style: document.getElementById('matchup-style').value.trim(),
-        runes: document.getElementById('matchup-runes').value.trim(),
-        items: document.getElementById('matchup-items').value.trim(),
-        early: document.getElementById('matchup-early').value.trim(),
-        mid: document.getElementById('matchup-mid').value.trim(),
-        tips: document.getElementById('matchup-tips').value.trim(),
-        updatedAt: new Date().toISOString()
-    };
+    previewContainer.innerHTML = `
+        <div class="dashboard-preview-card diff-${m.difficulty} ${m.isCustom ? 'is-customized' : ''}">
+            <div class="preview-card-header">
+                <div class="preview-duo">
+                    <div class="preview-avatar-box">
+                        <img src="${getChampSquareUrl(m.myChamp)}" alt="${m.myChamp}">
+                        <span>${m.myChamp}</span>
+                    </div>
+                    <span class="preview-vs">VS</span>
+                    <div class="preview-avatar-box">
+                        <img src="${getChampSquareUrl(m.enemyChamp)}" alt="${m.enemyChamp}">
+                        <span>${m.enemyChamp}</span>
+                    </div>
+                </div>
 
-    saveData();
-    showNotification(`Matchup [${role}] ${championsData[myChamp].name} VS ${championsData[enemyChamp].name} enregistré.`, "success");
+                <div class="preview-header-meta">
+                    <div class="preview-badges">
+                        ${m.isCustom ? '<span class="matrix-custom-pill">⭐ Vos notes perso</span>' : ''}
+                        <span class="matrix-diff-badge ${m.difficulty}">${m.difficultyLabel}</span>
+                        <span class="matrix-range-delta ${m.deltaRange >= 0 ? 'pos' : 'neg'}">
+                            ${m.deltaRange >= 0 ? '+' : ''}${m.deltaRange} portée
+                        </span>
+                    </div>
+                </div>
+            </div>
 
-    // Reset Form
-    resetMatchupForm();
+            <div class="preview-card-body">
+                <div class="preview-key-tip ${m.isCustom ? 'custom-tip-box' : ''}">
+                    <strong>${m.isCustom ? '⭐ VOTRE ASTUCE PERSONNELLE :' : '💡 ASTUCE CLÉ :'}</strong>
+                    <p>${m.mainTip}</p>
+                </div>
+                <div class="preview-spell-alert">
+                    <span>⚠️ <strong>Sort critique à esquiver :</strong> ${m.criticalSpellToWatch}</span>
+                </div>
+            </div>
 
-    // Redirect to list
-    document.querySelector('.nav-item[data-tab="matchups"]').click();
+            <div class="preview-card-actions">
+                <button class="btn btn-accent" id="preview-focus-action-btn">
+                    🎯 Lancer le Mode Focus Loading
+                </button>
+                <button class="btn btn-primary" id="preview-edit-action-btn">
+                    ✏️ Modifier / Personnaliser
+                </button>
+                <button class="btn btn-secondary" id="preview-matrix-action-btn">
+                    ⚔️ Voir dans Matchups & Duels
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('preview-focus-action-btn')?.addEventListener('click', () => {
+        launchFocusMode(myChamp, enemyChamp, role);
+    });
+
+    document.getElementById('preview-edit-action-btn')?.addEventListener('click', () => {
+        openEditMatchupModal(myChamp, enemyChamp, role);
+    });
+
+    document.getElementById('preview-matrix-action-btn')?.addEventListener('click', () => {
+        if (typeof allMatchupsCurrentLane !== 'undefined') allMatchupsCurrentLane = role;
+        if (typeof allMatchupsMyChamp !== 'undefined') allMatchupsMyChamp = myChamp;
+        if (typeof allMatchupsEnemyChamp !== 'undefined') allMatchupsEnemyChamp = enemyChamp;
+        document.querySelector('.nav-item[data-tab="all-matchups"]')?.click();
+    });
 }
-
-function resetMatchupForm() {
-    document.getElementById('matchup-id').value = '';
-    document.getElementById('editor-role-select').value = 'TOP';
-    
-    // Trigger change to refresh custom select options for top lane
-    const event = new Event('change');
-    document.getElementById('editor-role-select').dispatchEvent(event);
-    
-    resetCustomSelect('editor-my-champ-select');
-    resetCustomSelect('editor-enemy-champ-select');
-    
-    document.querySelector('input[name="difficulty"][value="easy"]').checked = true;
-    document.getElementById('matchup-style').value = '';
-    document.getElementById('matchup-runes').value = '';
-    document.getElementById('matchup-items').value = '';
-    document.getElementById('matchup-early').value = '';
-    document.getElementById('matchup-mid').value = '';
-    document.getElementById('matchup-tips').value = '';
-
-    // Restore headers to standard creating state
-    document.getElementById('editor-title').textContent = "Créer un Matchup";
-    document.getElementById('editor-subtitle').textContent = "Documentez vos stratégies, builds et astuces contre un adversaire";
-}
-
-// Edit Matchup loader
-window.editMatchup = function(myChamp, enemyChamp, role) {
-    const key = `${role}_${myChamp}_${enemyChamp}`;
-    const m = state.matchups[key];
-    if (!m) return;
-
-    // Switch to editor tab
-    document.querySelector('.nav-item[data-tab="editor"]').click();
-
-    // Fill form
-    document.getElementById('matchup-id').value = key;
-    document.getElementById('editor-role-select').value = m.role;
-    
-    // Trigger change to update Mon Champion options list
-    const event = new Event('change');
-    document.getElementById('editor-role-select').dispatchEvent(event);
-
-    setCustomSelectValue('editor-my-champ-select', m.myChamp);
-    setCustomSelectValue('editor-enemy-champ-select', m.enemyChamp);
-    
-    document.querySelector(`input[name="difficulty"][value="${m.difficulty}"]`).checked = true;
-    document.getElementById('matchup-style').value = m.style || '';
-    document.getElementById('matchup-runes').value = m.runes || '';
-    document.getElementById('matchup-items').value = m.items || '';
-    document.getElementById('matchup-early').value = m.early || '';
-    document.getElementById('matchup-mid').value = m.mid || '';
-    document.getElementById('matchup-tips').value = m.tips || '';
-
-    // Customize title for modification mode
-    document.getElementById('editor-title').textContent = `Modifier le Matchup : [${role}] ${championsData[myChamp]?.name || myChamp} VS ${championsData[enemyChamp]?.name || enemyChamp}`;
-    document.getElementById('editor-subtitle').textContent = "Mettez à jour vos notes de combat.";
-};
-
-// Delete Matchup operation
-window.deleteMatchup = function(myChamp, enemyChamp, role) {
-    const key = `${role}_${myChamp}_${enemyChamp}`;
-    const myName = championsData[myChamp]?.name || myChamp;
-    const enemyName = championsData[enemyChamp]?.name || enemyChamp;
-
-    if (!confirm(`Effacer définitivement vos notes pour [${role}] ${myName} VS ${enemyName} ?`)) return;
-
-    delete state.matchups[key];
-    saveData();
-    renderDashboard();
-    renderMatchupsList();
-
-    showNotification(`Matchup [${role}] ${myName} VS ${enemyName} effacé.`, "warning");
-};
 
 // --- Focus Mode Controller ---
 window.launchFocusMode = function(myChamp, enemyChamp, role) {
-    const key = `${role}_${myChamp}_${enemyChamp}`;
-    const m = state.matchups[key];
-    if (!m) {
-        alert("Ce matchup n'est pas encore documenté. Veuillez le créer d'abord !");
-        return;
-    }
+    const m = window.getMatchupData ? window.getMatchupData(myChamp, enemyChamp, role) : window.generateMatchupAnalysis(myChamp, enemyChamp, role);
 
     // Populate focus view content
     const headers = document.getElementById('focus-champ-headers');
@@ -885,27 +727,35 @@ window.launchFocusMode = function(myChamp, enemyChamp, role) {
     const diffCard = document.getElementById('focus-card-difficulty');
     diffCard.className = `focus-card difficulty-focus-card ${m.difficulty}`;
     
-    const difficultyLabelMap = {
-        'easy': 'Facile',
-        'medium': 'Moyen',
-        'hard': 'Difficile',
-        'skill': 'Skill Matchup'
-    };
-
     diffCard.innerHTML = `
         <span class="focus-diff-title">Difficulté Matchup</span>
-        <span class="focus-diff-val ${m.difficulty}">${difficultyLabelMap[m.difficulty]}</span>
+        <span class="focus-diff-val ${m.difficulty}">${m.difficultyLabel}</span>
         <span class="focus-role-val">
-            <span class="role-badge ${m.role.toLowerCase()}" style="margin-right:6px; border:none; padding:0; background:none;">${m.role}</span>
-            - ${m.style || 'Général'}
+            <span class="role-badge ${m.lane.toLowerCase()}" style="margin-right:6px; border:none; padding:0; background:none;">${m.lane}</span>
+            ${m.isCustom ? '⭐ Modifié par vous' : 'Riot Default'}
         </span>
     `;
 
     // Sections texts
-    document.getElementById('focus-content-early').textContent = m.early || 'Aucune note pour l\'early game.';
-    document.getElementById('focus-content-setup').textContent = `[RUNES]\n${m.runes || 'Non spécifié'}\n\n[ITEMS]\n${m.items || 'Non spécifié'}`;
-    document.getElementById('focus-content-tips').textContent = m.tips || 'Aucun conseil clé renseigné.';
-    document.getElementById('focus-content-mid').textContent = m.mid || 'Aucune note pour le mid/late game.';
+    document.getElementById('focus-content-early').textContent = m.waveManagement || 'Conservez une bonne gestion de vague.';
+    document.getElementById('focus-content-setup').textContent = m.itemsAdvice || 'Adaptez votre build selon les dégâts adverses.';
+    document.getElementById('focus-content-tips').innerHTML = `
+        <div style="margin-bottom: 12px; font-size: 16px; color: var(--gold-light);">
+            ${m.mainTip}
+        </div>
+        <div style="font-size: 14px; color: var(--diff-hard);">
+            ⚠️ <strong>Sort à esquiver :</strong> ${m.criticalSpellToWatch}
+        </div>
+    `;
+    document.getElementById('focus-content-mid').textContent = m.allInTiming || 'Attendez que les sorts clés soient en récupération.';
+
+    // Setup focus edit button
+    const focusEditBtn = document.getElementById('focus-edit-matchup-btn');
+    if (focusEditBtn) {
+        focusEditBtn.onclick = () => {
+            openEditMatchupModal(m.myChamp, m.enemyChamp, m.lane);
+        };
+    }
 
     // Show Focus Mode tab
     const navItems = document.querySelectorAll('.nav-item');
@@ -915,26 +765,88 @@ window.launchFocusMode = function(myChamp, enemyChamp, role) {
     tabContents.forEach(t => t.classList.remove('active'));
 
     const focusNavItem = document.querySelector('.nav-item[data-tab="focus-mode"]');
-    focusNavItem.classList.add('active');
-    document.getElementById('focus-mode').classList.add('active');
+    focusNavItem?.classList.add('active');
+    document.getElementById('focus-mode')?.classList.add('active');
 };
 
-// Quick Matchup Trigger validations
-function updateQuickCheckBtnStates() {
-    const myChamp = document.getElementById('quick-my-champ-select').querySelector('.select-trigger').dataset.value;
-    const enemyChamp = document.getElementById('quick-enemy-champ-select').querySelector('.select-trigger').dataset.value;
+// --- Direct Matchup Edit Modal Controller ---
+window.openEditMatchupModal = function(myChamp, enemyChamp, lane) {
+    const modal = document.getElementById('edit-matchup-modal');
+    if (!modal) return;
 
-    const searchBtn = document.getElementById('quick-search-btn');
-    const focusBtn = document.getElementById('quick-focus-btn');
+    const m = window.getMatchupData ? window.getMatchupData(myChamp, enemyChamp, lane) : window.generateMatchupAnalysis(myChamp, enemyChamp, lane);
 
-    if (myChamp && enemyChamp) {
-        searchBtn.disabled = false;
-        focusBtn.disabled = false;
-    } else {
-        searchBtn.disabled = true;
-        focusBtn.disabled = true;
+    // Form inputs
+    document.getElementById('edit-modal-my-champ').value = myChamp;
+    document.getElementById('edit-modal-enemy-champ').value = enemyChamp;
+    document.getElementById('edit-modal-lane').value = lane;
+
+    document.getElementById('edit-modal-title').textContent = `Modifier le Duel : ${myChamp} VS ${enemyChamp}`;
+    const badge = document.getElementById('edit-modal-role-badge');
+    badge.textContent = lane;
+    badge.className = `role-badge ${lane.toLowerCase()}`;
+
+    // Duo banner
+    document.getElementById('edit-modal-duo-banner').innerHTML = `
+        <div class="modal-duo-col">
+            <img src="${getChampSquareUrl(myChamp)}" alt="${myChamp}">
+            <strong>${myChamp}</strong>
+        </div>
+        <div class="modal-duo-vs">VS</div>
+        <div class="modal-duo-col">
+            <img src="${getChampSquareUrl(enemyChamp)}" alt="${enemyChamp}">
+            <strong>${enemyChamp}</strong>
+        </div>
+    `;
+
+    // Radio difficulty
+    const radio = document.querySelector(`input[name="modal-difficulty"][value="${m.difficulty}"]`);
+    if (radio) radio.checked = true;
+
+    // Fields
+    document.getElementById('edit-modal-tips').value = (m.isCustom && m.rawCustom && (m.rawCustom.tips || m.rawCustom.customTip)) ? (m.rawCustom.tips || m.rawCustom.customTip) : m.mainTip;
+    document.getElementById('edit-modal-spell').value = m.criticalSpellToWatch || '';
+    document.getElementById('edit-modal-early').value = m.waveManagement || '';
+    document.getElementById('edit-modal-mid').value = m.allInTiming || '';
+    document.getElementById('edit-modal-items').value = m.itemsAdvice || '';
+
+    // Reset button display
+    const resetBtn = document.getElementById('edit-modal-reset-btn');
+    if (resetBtn) {
+        resetBtn.style.display = m.isCustom ? 'inline-flex' : 'none';
+        resetBtn.onclick = () => {
+            resetMatchupToDefault(myChamp, enemyChamp, lane);
+            closeEditMatchupModal();
+        };
     }
+
+    modal.classList.remove('hidden');
+};
+
+function closeEditMatchupModal() {
+    document.getElementById('edit-matchup-modal')?.classList.add('hidden');
 }
+
+window.resetMatchupToDefault = function(myChamp, enemyChamp, lane) {
+    const key = `${lane}_${myChamp}_${enemyChamp}`;
+    if (!state.matchups[key]) return;
+
+    if (!confirm(`Rétablir les astuces par défaut de League of Legends pour [${lane}] ${myChamp} VS ${enemyChamp} ?`)) {
+        return;
+    }
+
+    delete state.matchups[key];
+    saveData();
+    renderDashboard();
+    if (typeof renderAllMatchupsView === 'function') {
+        renderAllMatchupsView();
+    }
+    // If focus mode is active, refresh it
+    if (document.getElementById('focus-mode')?.classList.contains('active')) {
+        launchFocusMode(myChamp, enemyChamp, lane);
+    }
+    showNotification(`Matchup ${myChamp} VS ${enemyChamp} rétabli par défaut.`, 'info');
+};
 
 // --- Import & Export Controllers ---
 function exportData() {
@@ -1109,72 +1021,64 @@ function setupEventListeners() {
         renderModalChampions(e.target.value.toLowerCase().trim());
     });
 
-    // Matchup Form Submit
-    document.getElementById('matchup-form')?.addEventListener('submit', saveMatchupForm);
-    document.getElementById('cancel-edit-btn')?.addEventListener('click', () => {
-        resetMatchupForm();
-        document.querySelector('.nav-item[data-tab="matchups"]').click();
+    // Edit Matchup Modal listeners
+    document.getElementById('close-edit-modal-btn')?.addEventListener('click', closeEditMatchupModal);
+    document.getElementById('edit-modal-cancel-btn')?.addEventListener('click', closeEditMatchupModal);
+    
+    // Direct modal form submission
+    document.getElementById('inline-matchup-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const myChamp = document.getElementById('edit-modal-my-champ').value;
+        const enemyChamp = document.getElementById('edit-modal-enemy-champ').value;
+        const lane = document.getElementById('edit-modal-lane').value;
+        const difficulty = document.querySelector('input[name="modal-difficulty"]:checked')?.value || 'medium';
+        const tips = document.getElementById('edit-modal-tips').value.trim();
+        const criticalSpell = document.getElementById('edit-modal-spell').value.trim();
+        const early = document.getElementById('edit-modal-early').value.trim();
+        const mid = document.getElementById('edit-modal-mid').value.trim();
+        const items = document.getElementById('edit-modal-items').value.trim();
+
+        const key = `${lane}_${myChamp}_${enemyChamp}`;
+        state.matchups[key] = {
+            id: key,
+            role: lane,
+            myChamp: myChamp,
+            enemyChamp: enemyChamp,
+            difficulty: difficulty,
+            tips: tips,
+            criticalSpell: criticalSpell,
+            early: early,
+            mid: mid,
+            items: items,
+            isCustom: true,
+            updatedAt: new Date().toISOString()
+        };
+
+        saveData();
+        closeEditMatchupModal();
+        showNotification(`Matchup ${myChamp} VS ${enemyChamp} personnalisé !`, "success");
+
+        // Refresh views
+        renderDashboard();
+        if (typeof renderAllMatchupsView === 'function') {
+            renderAllMatchupsView();
+        }
+        if (document.getElementById('focus-mode')?.classList.contains('active')) {
+            launchFocusMode(myChamp, enemyChamp, lane);
+        }
     });
 
-    // Quick Checker listeners for enabling buttons on change
-    document.getElementById('quick-my-champ-select')?.addEventListener('change', updateQuickCheckBtnStates);
-    document.getElementById('quick-enemy-champ-select')?.addEventListener('change', updateQuickCheckBtnStates);
-    
+    // Dashboard Explore Matrix button
+    document.getElementById('dashboard-explore-matrix-btn')?.addEventListener('click', () => {
+        document.querySelector('.nav-item[data-tab="all-matchups"]')?.click();
+    });
+
     // Quick Checker role select change
     document.getElementById('quick-role-select')?.addEventListener('change', () => {
         resetCustomSelect('quick-my-champ-select');
-        updateQuickCheckBtnStates();
+        resetCustomSelect('quick-enemy-champ-select');
+        updateQuickMatchupPreview();
     });
-
-    // Editor role select change
-    document.getElementById('editor-role-select')?.addEventListener('change', () => {
-        resetCustomSelect('editor-my-champ-select');
-    });
-
-    // Quick Checker Trigger Actions
-    document.getElementById('quick-search-btn')?.addEventListener('click', () => {
-        const myChamp = document.getElementById('quick-my-champ-select').querySelector('.select-trigger').dataset.value;
-        const enemyChamp = document.getElementById('quick-enemy-champ-select').querySelector('.select-trigger').dataset.value;
-        const role = document.getElementById('quick-role-select').value;
-        
-        if (myChamp && enemyChamp) {
-            // Apply filters to matchups tab
-            const searchInput = document.getElementById('matchups-search-input');
-            searchInput.value = ''; // clear text search
-            
-            document.getElementById('filter-role').value = role;
-            document.getElementById('filter-my-champ').value = myChamp;
-            document.getElementById('filter-difficulty').value = 'all';
-
-            // Filter on matchups list is computed dynamically, let's trigger it
-            renderMatchupsList();
-
-            // Redirect
-            document.querySelector('.nav-item[data-tab="matchups"]').click();
-        }
-    });
-
-    document.getElementById('quick-focus-btn')?.addEventListener('click', () => {
-        const myChamp = document.getElementById('quick-my-champ-select').querySelector('.select-trigger').dataset.value;
-        const enemyChamp = document.getElementById('quick-enemy-champ-select').querySelector('.select-trigger').dataset.value;
-        const role = document.getElementById('quick-role-select').value;
-        
-        if (myChamp && enemyChamp) {
-            launchFocusMode(myChamp, enemyChamp, role);
-        }
-    });
-
-    // Focus screen exit
-    document.getElementById('exit-focus-btn')?.addEventListener('click', () => {
-        // Go back to dashboard
-        document.querySelector('.nav-item[data-tab="dashboard"]').click();
-    });
-
-    // Matchups tab filters
-    document.getElementById('matchups-search-input')?.addEventListener('input', renderMatchupsList);
-    document.getElementById('filter-difficulty')?.addEventListener('change', renderMatchupsList);
-    document.getElementById('filter-my-champ')?.addEventListener('change', renderMatchupsList);
-    document.getElementById('filter-role')?.addEventListener('change', renderMatchupsList);
 
     // Settings actions
     document.getElementById('export-data-btn')?.addEventListener('click', exportData);

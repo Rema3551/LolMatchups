@@ -10,6 +10,14 @@ let allMatchupsFilterSearch = '';
 let allMatchupsFilterRange = 'all'; // 'all', 'melee', 'ranged'
 let allMatchupsViewMode = 'matrix'; // 'matrix' ou 'duel'
 
+function getEffectiveLanePool(lane) {
+    const defaultPool = (window.LANE_CHAMPIONS_POOL && window.LANE_CHAMPIONS_POOL[lane]) || (window.LANE_CHAMPIONS_POOL && window.LANE_CHAMPIONS_POOL.TOP) || [];
+    const userPool = (window.state && window.state.championPool && window.state.championPool[lane]) || [];
+    const userPoolSet = new Set(userPool);
+    const others = defaultPool.filter(c => !userPoolSet.has(c)).sort();
+    return [...userPool, ...others];
+}
+
 // Initialisation de la vue
 function initAllMatchupsView() {
     setupAllMatchupsEventListeners();
@@ -17,12 +25,12 @@ function initAllMatchupsView() {
 
 function renderAllMatchupsView() {
     // S'assurer que le champion sélectionné est viable pour la lane active
-    const pool = window.LANE_CHAMPIONS_POOL[allMatchupsCurrentLane] || window.LANE_CHAMPIONS_POOL.TOP;
+    const pool = getEffectiveLanePool(allMatchupsCurrentLane);
     if (!pool.includes(allMatchupsMyChamp)) {
-        allMatchupsMyChamp = pool[0];
+        allMatchupsMyChamp = pool[0] || 'Aatrox';
     }
     if (!pool.includes(allMatchupsEnemyChamp) || allMatchupsEnemyChamp === allMatchupsMyChamp) {
-        allMatchupsEnemyChamp = pool.find(c => c !== allMatchupsMyChamp) || pool[1];
+        allMatchupsEnemyChamp = pool.find(c => c !== allMatchupsMyChamp) || pool[1] || 'Jax';
     }
 
     renderLaneTabsBar();
@@ -100,13 +108,15 @@ function renderMyChampLaneSelector() {
     if (!select) return;
 
     select.innerHTML = '';
-    const pool = window.LANE_CHAMPIONS_POOL[allMatchupsCurrentLane] || window.LANE_CHAMPIONS_POOL.TOP;
+    const pool = getEffectiveLanePool(allMatchupsCurrentLane);
+    const userPool = (window.state && window.state.championPool && window.state.championPool[allMatchupsCurrentLane]) || [];
 
     pool.forEach(champId => {
         const opt = document.createElement('option');
         opt.value = champId;
         const isMelee = window.isMeleeChampion ? window.isMeleeChampion(champId) : true;
-        opt.textContent = `${champId} (${isMelee ? '⚔️ Mêlée' : '🏹 Distance'})`;
+        const inPool = userPool.includes(champId);
+        opt.textContent = `${inPool ? '⭐ ' : ''}${champId} (${isMelee ? '⚔️ Mêlée' : '🏹 Distance'})`;
         if (champId === allMatchupsMyChamp) opt.selected = true;
         select.appendChild(opt);
     });
@@ -145,7 +155,7 @@ function renderMatchupsMatrix() {
     let easyCount = 0, mediumCount = 0, hardCount = 0, skillCount = 0;
 
     const generatedMatchups = allOpponents.map(enemyChamp => {
-        const data = window.generateMatchupAnalysis(myChamp, enemyChamp, lane);
+        const data = window.getMatchupData ? window.getMatchupData(myChamp, enemyChamp, lane) : window.generateMatchupAnalysis(myChamp, enemyChamp, lane);
         if (data.difficulty === 'easy') easyCount++;
         else if (data.difficulty === 'medium') mediumCount++;
         else if (data.difficulty === 'hard') hardCount++;
@@ -191,9 +201,7 @@ function renderMatchupsMatrix() {
 
     filtered.forEach(m => {
         const card = document.createElement('div');
-        card.className = `matchup-matrix-card diff-${m.difficulty}`;
-
-        const isSaved = !!state.matchups[`${lane}_${myChamp}_${m.enemyChamp}`];
+        card.className = `matchup-matrix-card diff-${m.difficulty} ${m.isCustom ? 'is-customized' : ''}`;
 
         card.innerHTML = `
             <div class="matrix-card-header">
@@ -210,7 +218,10 @@ function renderMatchupsMatrix() {
                 </div>
 
                 <div class="matrix-header-info">
-                    <h4 class="matrix-enemy-name">${m.enemyChamp}</h4>
+                    <div class="matrix-title-row">
+                        <h4 class="matrix-enemy-name">${m.enemyChamp}</h4>
+                        ${m.isCustom ? '<span class="matrix-custom-pill" title="Vous avez personnalisé ce matchup avec vos propres notes">⭐ Modifié</span>' : ''}
+                    </div>
                     <div class="matrix-badges-row">
                         <span class="matrix-diff-badge ${m.difficulty}">${m.difficultyLabel}</span>
                         <span class="matrix-range-delta ${m.deltaRange >= 0 ? 'pos' : 'neg'}">
@@ -221,9 +232,9 @@ function renderMatchupsMatrix() {
             </div>
 
             <div class="matrix-card-body">
-                <!-- Astuce clé en or -->
-                <div class="matrix-key-tip">
-                    <span class="key-tip-label">💡 ASTUCE CLÉ :</span>
+                <!-- Astuce clé (personnalisée ou de base) -->
+                <div class="matrix-key-tip ${m.isCustom ? 'custom-tip-box' : ''}">
+                    <span class="key-tip-label">${m.isCustom ? '⭐ VOTRE ASTUCE PERSONNELLE :' : '💡 ASTUCE CLÉ :'}</span>
                     <p class="key-tip-text">${m.mainTip}</p>
                 </div>
 
@@ -253,27 +264,42 @@ function renderMatchupsMatrix() {
             </div>
 
             <div class="matrix-card-actions">
-                <button class="btn btn-sm ${isSaved ? 'btn-secondary' : 'btn-primary'} btn-import-matrix" data-enemy="${m.enemyChamp}">
-                    ${isSaved ? '✓ Enregistré' : '💾 Sauvegarder dans Mes Matchups'}
+                <button class="btn btn-sm btn-accent btn-focus-matrix" title="Lancer l'écran de chargement plein écran">
+                    🎯 Focus Mode
                 </button>
-                <button class="btn btn-sm btn-secondary btn-edit-matrix" data-enemy="${m.enemyChamp}" title="Ouvrir dans l'éditeur">
-                    📝 Éditer
+                <button class="btn btn-sm btn-secondary btn-edit-matrix" title="Modifier ou ajouter vos propres astuces">
+                    ✏️ Modifier
                 </button>
+                ${m.isCustom ? `
+                    <button class="btn btn-sm btn-icon-only btn-reset-matrix" title="Rétablir les astuces par défaut de Riot">
+                        ↺
+                    </button>
+                ` : ''}
             </div>
         `;
 
-        // Bouton d'importation dans mes matchups
-        card.querySelector('.btn-import-matrix')?.addEventListener('click', (e) => {
+        // Bouton Focus Mode
+        card.querySelector('.btn-focus-matrix')?.addEventListener('click', (e) => {
             e.stopPropagation();
-            importMatrixMatchup(m);
-            card.querySelector('.btn-import-matrix').className = 'btn btn-sm btn-secondary btn-import-matrix';
-            card.querySelector('.btn-import-matrix').textContent = '✓ Enregistré';
+            if (typeof window.launchFocusMode === 'function') {
+                window.launchFocusMode(m.myChamp, m.enemyChamp, lane);
+            }
         });
 
-        // Bouton d'édition
+        // Bouton d'édition directe
         card.querySelector('.btn-edit-matrix')?.addEventListener('click', (e) => {
             e.stopPropagation();
-            openInEditorWithData(m);
+            if (typeof window.openEditMatchupModal === 'function') {
+                window.openEditMatchupModal(m.myChamp, m.enemyChamp, lane);
+            }
+        });
+
+        // Bouton rétablir
+        card.querySelector('.btn-reset-matrix')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (typeof window.resetMatchupToDefault === 'function') {
+                window.resetMatchupToDefault(m.myChamp, m.enemyChamp, lane);
+            }
         });
 
         container.appendChild(card);
@@ -289,7 +315,8 @@ function renderUniversalDuelSimulator() {
     if (duelViewContainer) duelViewContainer.style.display = 'block';
 
     const lane = allMatchupsCurrentLane;
-    const pool = window.LANE_CHAMPIONS_POOL[lane] || window.LANE_CHAMPIONS_POOL.TOP;
+    const pool = getEffectiveLanePool(lane);
+    const userPool = (window.state && window.state.championPool && window.state.championPool[lane]) || [];
 
     // Remplir les deux sélecteurs
     const select1 = document.getElementById('sim-universal-my-select');
@@ -300,9 +327,10 @@ function renderUniversalDuelSimulator() {
         select2.innerHTML = '';
 
         pool.forEach(c => {
+            const isUserMyChamp = userPool.includes(c);
             const opt1 = document.createElement('option');
             opt1.value = c;
-            opt1.textContent = c;
+            opt1.textContent = `${isUserMyChamp ? '⭐ ' : ''}${c}`;
             if (c === allMatchupsMyChamp) opt1.selected = true;
             select1.appendChild(opt1);
 
@@ -335,10 +363,10 @@ function updateUniversalDuelView() {
     const enemyChamp = allMatchupsEnemyChamp;
     const lane = allMatchupsCurrentLane;
 
-    const m = window.generateMatchupAnalysis(myChamp, enemyChamp, lane);
+    const m = window.getMatchupData ? window.getMatchupData(myChamp, enemyChamp, lane) : window.generateMatchupAnalysis(myChamp, enemyChamp, lane);
 
     outputContainer.innerHTML = `
-        <div class="universal-duel-banner diff-${m.difficulty}">
+        <div class="universal-duel-banner diff-${m.difficulty} ${m.isCustom ? 'is-customized' : ''}">
             <div class="duel-banner-duo">
                 <div class="duel-champ-box">
                     <img src="${getChampSquareUrl(m.myChamp)}" alt="${m.myChamp}">
@@ -352,6 +380,7 @@ function updateUniversalDuelView() {
             </div>
 
             <div class="duel-banner-badges">
+                ${m.isCustom ? '<span class="matrix-custom-pill">⭐ Fiche Personnalisée</span>' : ''}
                 <span class="matrix-diff-badge ${m.difficulty}">${m.difficultyLabel}</span>
                 <span class="matrix-range-delta ${m.deltaRange >= 0 ? 'pos' : 'neg'}">
                     Différence : ${m.deltaRange >= 0 ? '+' : ''}${m.deltaRange} portée
@@ -360,8 +389,8 @@ function updateUniversalDuelView() {
         </div>
 
         <div class="universal-duel-grid">
-            <div class="card duel-card-section highlight-gold-border">
-                <h4>💡 L'Astuce Clé Ultime</h4>
+            <div class="card duel-card-section highlight-gold-border ${m.isCustom ? 'custom-tip-box' : ''}">
+                <h4>${m.isCustom ? '⭐ Votre Astuce Clé Personnalisée' : '💡 L\'Astuce Clé Ultime'}</h4>
                 <p class="duel-section-text font-accent">${m.mainTip}</p>
             </div>
 
@@ -387,71 +416,109 @@ function updateUniversalDuelView() {
         </div>
 
         <div class="universal-duel-actions">
-            <button id="btn-save-universal-duel" class="btn btn-primary">
-                💾 Sauvegarder dans mon carnet personnel de Matchups
+            <button id="btn-focus-universal-duel" class="btn btn-accent">
+                🎯 Lancer le Mode Focus Loading
             </button>
-            <button id="btn-edit-universal-duel" class="btn btn-secondary">
-                📝 Personnaliser dans l'Éditeur
+            <button id="btn-edit-universal-duel" class="btn btn-primary">
+                ✏️ Modifier / Personnaliser ce Matchup
             </button>
+            ${m.isCustom ? `
+                <button id="btn-reset-universal-duel" class="btn btn-secondary">
+                    ↺ Rétablir par défaut
+                </button>
+            ` : ''}
         </div>
     `;
 
-    document.getElementById('btn-save-universal-duel')?.addEventListener('click', () => {
-        importMatrixMatchup(m);
+    document.getElementById('btn-focus-universal-duel')?.addEventListener('click', () => {
+        if (typeof window.launchFocusMode === 'function') {
+            window.launchFocusMode(m.myChamp, m.enemyChamp, lane);
+        }
     });
 
     document.getElementById('btn-edit-universal-duel')?.addEventListener('click', () => {
-        openInEditorWithData(m);
+        if (typeof window.openEditMatchupModal === 'function') {
+            window.openEditMatchupModal(m.myChamp, m.enemyChamp, lane);
+        }
+    });
+
+    document.getElementById('btn-reset-universal-duel')?.addEventListener('click', () => {
+        if (typeof window.resetMatchupToDefault === 'function') {
+            window.resetMatchupToDefault(m.myChamp, m.enemyChamp, lane);
+        }
     });
 }
 
-// Fonction d'importation automatique d'une note générée dans state.matchups
-function importMatrixMatchup(m) {
-    const key = `${m.lane}_${m.myChamp}_${m.enemyChamp}`;
-    state.matchups[key] = {
-        id: key,
-        role: m.lane,
-        myChamp: m.myChamp,
-        enemyChamp: m.enemyChamp,
-        difficulty: m.difficulty,
-        style: `${m.lane} - ${m.difficultyLabel}`,
-        runes: "",
-        items: m.itemsAdvice || "",
-        early: `${m.mainTip} | Gestion de vague : ${m.waveManagement}`,
-        mid: `Spike adverse : ${m.enemySpike}. All-in timing : ${m.allInTiming}`,
-        tips: `Sort critique à esquiver : ${m.criticalSpellToWatch}. Faiblesse : ${m.enemyWeakness}`,
-        updatedAt: new Date().toISOString()
+// Fonction unifiée d'accès aux données d'un matchup : combine le moteur Riot et les ajouts personnalisés de l'utilisateur
+function getMatchupData(myChampId, enemyChampId, lane) {
+    const base = window.generateMatchupAnalysis ? window.generateMatchupAnalysis(myChampId, enemyChampId, lane) : {
+        myChamp: myChampId,
+        enemyChamp: enemyChampId,
+        lane: lane,
+        difficulty: 'medium',
+        difficultyLabel: 'Moyen',
+        mainTip: '',
+        criticalSpellToWatch: '',
+        enemyWeakness: '',
+        enemySpike: '',
+        waveManagement: '',
+        allInTiming: '',
+        itemsAdvice: '',
+        myRange: 175,
+        enemyRange: 175,
+        deltaRange: 0,
+        myIsMelee: true,
+        enemyIsMelee: true
     };
 
-    saveData();
-    renderDashboard();
-    renderMatchupsList();
+    const key = `${lane}_${myChampId}_${enemyChampId}`;
+    const custom = (window.state && window.state.matchups) ? window.state.matchups[key] : null;
 
-    if (typeof showNotification === 'function') {
-        showNotification(`Matchup [${m.lane}] ${m.myChamp} VS ${m.enemyChamp} sauvegardé dans vos notes !`, "success");
+    const diffMap = {
+        'easy': 'Facile (Favorable)',
+        'medium': 'Moyen (Équilibré)',
+        'hard': 'Difficile (Défavorable)',
+        'skill': 'Skill Matchup (Compétence pure)'
+    };
+
+    if (!custom) {
+        return {
+            ...base,
+            isCustom: false
+        };
     }
-}
 
-// Préremplit le formulaire de l'éditeur et bascule d'onglet
-function openInEditorWithData(m) {
-    document.getElementById('editor-role-select').value = m.lane;
-    setCustomSelectValue('editor-my-champ-select', m.myChamp);
-    setCustomSelectValue('editor-enemy-champ-select', m.enemyChamp);
-    
-    // Remplir difficulté
-    const radio = document.querySelector(`input[name="difficulty"][value="${m.difficulty}"]`);
-    if (radio) radio.checked = true;
+    const effectiveDiff = custom.difficulty || base.difficulty;
 
-    document.getElementById('matchup-style').value = `${m.lane} - ${m.difficultyLabel}`;
-    document.getElementById('matchup-items').value = m.itemsAdvice || '';
-    document.getElementById('matchup-early').value = `${m.mainTip}\n\nWave Management : ${m.waveManagement}`;
-    document.getElementById('matchup-mid').value = `All-in : ${m.allInTiming}\nPic de puissance ennemi : ${m.enemySpike}`;
-    document.getElementById('matchup-tips').value = `Sort critique à surveiller : ${m.criticalSpellToWatch}\nPoint faible : ${m.enemyWeakness}`;
-
-    document.querySelector('.nav-item[data-tab="editor"]').click();
+    return {
+        ...base,
+        difficulty: effectiveDiff,
+        difficultyLabel: diffMap[effectiveDiff] || base.difficultyLabel,
+        mainTip: custom.tips || custom.customTip || base.mainTip,
+        criticalSpellToWatch: custom.criticalSpell || custom.criticalSpellToWatch || base.criticalSpellToWatch,
+        waveManagement: custom.early || base.waveManagement,
+        allInTiming: custom.mid || base.allInTiming,
+        itemsAdvice: (custom.runes || custom.items) ? `${custom.runes ? '[Runes] ' + custom.runes + ' ' : ''}${custom.items ? '[Items] ' + custom.items : ''}`.trim() : base.itemsAdvice,
+        rawCustom: custom,
+        isCustom: true,
+        updatedAt: custom.updatedAt
+    };
 }
 
 // Export global
 window.initAllMatchupsView = initAllMatchupsView;
 window.renderAllMatchupsView = renderAllMatchupsView;
-window.importMatrixMatchup = importMatrixMatchup;
+window.getMatchupData = getMatchupData;
+window.navigateToMatchupView = function(champId, lane) {
+    if (lane) allMatchupsCurrentLane = lane;
+    if (champId) allMatchupsMyChamp = champId;
+    allMatchupsViewMode = 'matrix';
+    const navBtn = document.querySelector('.nav-item[data-tab="all-matchups"]');
+    if (navBtn) {
+        navBtn.click();
+    } else {
+        renderAllMatchupsView();
+    }
+};
+
+
