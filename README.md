@@ -5,6 +5,9 @@ Une application web moderne, légère et responsive conçue pour aider les joueu
 ## 🚀 Fonctionnalités
 
 - **Champion Pool par Rôle** : Organisez vos champions favoris selon le rôle auquel vous les jouez.
+- **Matrice Universelle de Tous les Matchups par Lane** : Génération et analyse instantanée de tous les duels imaginables par lane (Top, Jungle, Mid, ADC, Support) avec astuces clés, sorts critiques à esquiver, gestion de vague, timings de all-in, et import direct en 1 clic dans vos notes personnelles.
+- **Encyclopédie & Guides de Jeu par Rôle** : Guides complets pour chaque champion et chaque rôle (Top, Jungle, Mid, ADC, Support) avec plans de jeu (Early, Mid, Late), combos, ordre de max des sorts, et builds recommandés.
+- **Analyse Spécifique des Matchups Mêlée vs Distance** : Conseils tactiques détaillés pour aborder les duels en fonction de la portée (gestion du spacing, tethering, économie de PV contre poke à distance, bush dancing, et timings d'all-in), avec simulateur direct de duel comparant l'écart de portée.
 - **Notes de Matchups Détaillées** : Enregistrez vos plans de jeu (Early Game, Mid/Late Game), vos choix d'équipement, de runes, et vos astuces mécaniques spécifiques contre chaque adversaire.
 - **Intégration Riot Data Dragon API** : Récupération dynamique et automatique de la liste officielle des champions de League of Legends ainsi que de leurs portraits en jeu.
 - **Mode Focus "Écran de chargement"** : Un affichage épuré, très contrasté et à grande lisibilité conçu pour être affiché sur un deuxième écran pendant les 30 secondes de chargement de la partie pour réviser votre plan de jeu en un coup d'œil.

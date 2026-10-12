@@ -1,0 +1,41 @@
+{
+    "championPool": {
+        "TOP": [],
+        "JUNGLE": [],
+        "MID": [
+            "Naafiri"
+        ],
+        "ADC": [],
+        "SUPPORT": []
+    },
+    "matchups": {
+        "MID_Naafiri_Veigar": {
+            "id": "MID_Naafiri_Veigar",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Veigar",
+            "difficulty": "easy",
+            "role": "MID",
+            "style": "MID",
+            "runes": "",
+            "items": "",
+            "early": "Le détruire dans les premiers niveaux, wave clear tranquille pour pas qu'il farme",
+            "mid": "",
+            "tips": "Faire attention, pendant que le R de Naafiri, Veigar peut faire sa cage",
+            "updatedAt": "2026-07-09T08:43:03.857Z"
+        },
+        "MID_Naafiri_Mel": {
+            "id": "MID_Naafiri_Mel",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Mel",
+            "difficulty": "easy",
+            "role": "MID",
+            "style": "",
+            "runes": "",
+            "items": "",
+            "early": "Respecter jusqu'au niveau 3 -> jouer chill si elle tue mes chiens",
+            "mid": "On la détruit, dès que j'ai la portée du R faut que je le fasse, si possibilité de le tuer\nMel ne peut pas arrêter mon R, je fonce quand même dessus même si",
+            "tips": "dodge execut avec le Z",
+            "updatedAt": "2026-07-09T10:40:10.219Z"
+        }
+    }
+}

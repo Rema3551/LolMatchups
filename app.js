@@ -47,6 +47,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupNavigation();
     setupEventListeners();
     setupRoleTabs();
+    if (typeof initGuidesView === 'function') {
+        initGuidesView();
+    }
+    if (typeof initAllMatchupsView === 'function') {
+        initAllMatchupsView();
+    }
     
     // Load champion data from Riot Games Data Dragon API
     await fetchChampionsList();
@@ -192,9 +198,31 @@ function setupNavigation() {
                 renderChampionPool();
             } else if (targetTab === 'matchups') {
                 renderMatchupsList();
+            } else if (targetTab === 'guides') {
+                if (typeof renderGuidesView === 'function') {
+                    renderGuidesView();
+                }
+            } else if (targetTab === 'all-matchups') {
+                if (typeof renderAllMatchupsView === 'function') {
+                    renderAllMatchupsView();
+                }
+            }
+
+            // Sync URL hash
+            if (window.location.hash !== `#${targetTab}`) {
+                history.replaceState(null, '', `#${targetTab}`);
             }
         });
     });
+
+    // Handle initial hash navigation if present
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash) {
+        const hashTarget = document.querySelector(`.nav-item[data-tab="${initialHash}"]`);
+        if (hashTarget) {
+            setTimeout(() => hashTarget.click(), 50);
+        }
+    }
 }
 
 // --- View Renderers ---
@@ -204,6 +232,12 @@ function renderAllViews() {
     renderChampionPool();
     renderMatchupsList();
     setupCustomDropdowns();
+    if (typeof renderGuidesView === 'function') {
+        renderGuidesView();
+    }
+    if (typeof renderAllMatchupsView === 'function') {
+        renderAllMatchupsView();
+    }
 }
 
 // Tab: Dashboard

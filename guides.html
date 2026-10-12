@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guides des Champions & Matchups - League Matchups Companion</title>
+    <meta name="description" content="Guides stratégiques complets de League of Legends pour chaque champion et chaque rôle (Top, Jungle, Mid, ADC, Support). Explications détaillées des matchups contre les champions Mêlée et Distance.">
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                        <polyline points="2 17 12 22 22 17" />
+                        <polyline points="2 12 12 17 22 12" />
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>LMC</h1>
+                    <span>Matchups Companion</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="index.html#dashboard" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" /><rect x="14" y="3" width="7" height="5" /><rect x="14" y="12" width="7" height="9" /><rect x="3" y="16" width="7" height="5" /></svg>
+                    Tableau de bord
+                </a>
+                <a href="index.html#champion-pool" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    Champion Pool
+                </a>
+                <a href="index.html#matchups" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M3 20h9M4 12h16M4 4h16M12 4v16"/></svg>
+                    Mes Matchups
+                </a>
+                <a href="guides.html" class="nav-item active" data-tab="guides" id="nav-guides-btn">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Guides & Stratégies
+                </a>
+                <a href="index.html#editor" class="nav-item" id="nav-editor-btn">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Ajouter/Modifier
+                </a>
+                <a href="index.html#focus-mode" class="nav-item focus-btn">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+                    Mode Focus Loading
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="index.html#settings" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Sauvegarde & Import
+                </a>
+                <div class="version">v1.1.0</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- TAB: Guides Stratégiques Champions & Rôles -->
+            <section id="guides" class="tab-content active" style="display: block;">
+                <header class="content-header">
+                    <div>
+                        <h2>Guides des Champions & Stratégies par Rôle</h2>
+                        <p class="subtitle">Plans de jeu complets, compétences, builds et conseils tactiques face aux champions Mêlée et Distance</p>
+                    </div>
+                </header>
+
+                <div class="guides-layout-wrapper">
+                    <!-- Top / Left Bar: Champion Selection & Filters -->
+                    <div class="card guides-browser-card">
+                        <div class="guides-controls-bar">
+                            <div class="search-box guide-search-box">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="guide-champ-search" placeholder="Rechercher un champion (ex: Aatrox, Ahri, Jinx, Camille...)...">
+                            </div>
+
+                            <div class="guide-filter-group">
+                                <span class="filter-group-label">Portée :</span>
+                                <div class="filter-chips-container">
+                                    <button class="filter-chip guide-range-filter-btn active" data-range="all">Tous</button>
+                                    <button class="filter-chip guide-range-filter-btn" data-range="melee">⚔️ Mêlée</button>
+                                    <button class="filter-chip guide-range-filter-btn" data-range="ranged">🏹 Distance</button>
+                                </div>
+                            </div>
+
+                            <div class="guide-filter-group">
+                                <span class="filter-group-label">Rôle :</span>
+                                <div class="filter-chips-container">
+                                    <button class="filter-chip guide-role-filter-btn active" data-role="all">Tous</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="TOP">TOP</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="JUNGLE">JUNGLE</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="MID">MID</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="ADC">ADC</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="SUPPORT">SUPPORT</button>
+                                </div>
+                            </div>
+
+                            <button id="guide-pool-filter-btn" class="filter-chip pool-filter-toggle">
+                                ⭐ Mon Champion Pool
+                            </button>
+                        </div>
+
+                        <!-- Champions Grid / Ribbon -->
+                        <div class="guide-champions-grid-container" id="guide-champions-grid">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Main Content: Detailed Selected Champion Guide -->
+                    <div id="guide-detail-container" class="guide-detail-area">
+                        <!-- Dynamically rendered by renderSelectedChampionGuide() -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="guides-data.js"></script>
+    <script src="guides.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Assurer que le guide est rendu dès que les champions sont chargés
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkReady = setInterval(() => {
+                if (typeof renderGuidesView === 'function' && typeof championsList !== 'undefined' && championsList.length > 0) {
+                    renderGuidesView();
+                    clearInterval(checkReady);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1685,3 +1685,1417 @@ a:hover {
 .role-badge.adc { background-color: rgba(255, 183, 3, 0.15); color: #ffd6a5; border-color: rgba(255, 183, 3, 0.3); }
 .role-badge.support { background-color: rgba(10, 203, 230, 0.15); color: #9bf6ff; border-color: rgba(10, 203, 230, 0.3); }
 
+/* ==========================================================================
+   --- Guides & Strategies Page Styling ---
+   ========================================================================== */
+
+.guides-layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Browser card & Filter controls */
+.guides-browser-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold-trans);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.guides-controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.guide-search-box {
+    flex: 1 1 260px;
+    min-width: 240px;
+}
+
+.guide-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    letter-spacing: 0.5px;
+}
+
+.filter-chips-container {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.filter-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-body);
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-chip:hover {
+    background: rgba(200, 155, 60, 0.1);
+    border-color: rgba(200, 155, 60, 0.3);
+    color: var(--gold-light);
+}
+
+.filter-chip.active {
+    background: linear-gradient(135deg, rgba(200, 155, 60, 0.25) 0%, rgba(120, 90, 40, 0.2) 100%);
+    border-color: var(--gold-hextech);
+    color: var(--gold-hextech);
+    box-shadow: 0 0 10px rgba(200, 155, 60, 0.2);
+}
+
+.pool-filter-toggle {
+    margin-left: auto;
+    border-color: rgba(255, 183, 3, 0.3);
+    color: #ffb703;
+}
+
+.pool-filter-toggle.active {
+    background: rgba(255, 183, 3, 0.2);
+    border-color: #ffb703;
+    color: #ffe699;
+    box-shadow: 0 0 12px rgba(255, 183, 3, 0.3);
+}
+
+/* Horizontal / Scrollable Champions Ribbon */
+.guide-champions-grid-container {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    padding-top: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dark) var(--bg-dark-slate);
+}
+
+.guide-champions-grid-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.guide-champions-grid-container::-webkit-scrollbar-thumb {
+    background: var(--gold-dark);
+    border-radius: 4px;
+}
+
+.guide-champ-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    flex: 0 0 76px;
+    transition: transform 0.2s ease;
+}
+
+.guide-champ-item:hover {
+    transform: translateY(-4px);
+}
+
+.guide-champ-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--border-color);
+    position: relative;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.guide-champ-item:hover .guide-champ-avatar {
+    border-color: var(--blue-hextech);
+    box-shadow: 0 0 14px rgba(10, 203, 230, 0.4);
+}
+
+.guide-champ-item.active .guide-champ-avatar {
+    border-color: var(--gold-hextech);
+    box-shadow: 0 0 18px rgba(200, 155, 60, 0.6);
+    transform: scale(1.06);
+}
+
+.range-mini-pill {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background: #090e17;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.range-mini-pill.melee {
+    border-color: rgba(230, 57, 70, 0.5);
+}
+
+.range-mini-pill.ranged {
+    border-color: rgba(46, 196, 182, 0.5);
+}
+
+.guide-champ-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-body);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 72px;
+}
+
+.guide-champ-item.active .guide-champ-label {
+    color: var(--gold-hextech);
+    font-weight: 700;
+}
+
+/* Hero Banner */
+.guide-hero-banner {
+    border-radius: 14px;
+    background-size: cover;
+    background-position: center 25%;
+    border: 1px solid var(--border-gold-trans);
+    padding: 32px 36px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.guide-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    z-index: 2;
+}
+
+.guide-hero-portrait-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.guide-hero-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 14px;
+    border: 3px solid var(--gold-hextech);
+    box-shadow: 0 0 24px rgba(200, 155, 60, 0.4);
+    object-fit: cover;
+}
+
+.guide-hero-info {
+    flex: 1;
+}
+
+.guide-hero-tags {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.range-badge-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.range-badge-large.melee {
+    background: rgba(230, 57, 70, 0.2);
+    border: 1px solid rgba(230, 57, 70, 0.6);
+    color: #ff99a8;
+}
+
+.range-badge-large.ranged {
+    background: rgba(46, 196, 182, 0.2);
+    border: 1px solid rgba(46, 196, 182, 0.6);
+    color: #99f3ea;
+}
+
+.guide-archetype-badge {
+    background: rgba(131, 56, 236, 0.2);
+    border: 1px solid rgba(131, 56, 236, 0.5);
+    color: #dfc2ff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.guide-damage-badge {
+    background: rgba(255, 183, 3, 0.2);
+    border: 1px solid rgba(255, 183, 3, 0.5);
+    color: #ffe08a;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.guide-viability-badge {
+    background: rgba(200, 155, 60, 0.2);
+    border: 1px solid rgba(200, 155, 60, 0.5);
+    color: var(--gold-hextech);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.guide-hero-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    margin-bottom: 4px;
+}
+
+.guide-hero-subtitle {
+    font-size: 16px;
+    color: var(--gold-light);
+    font-style: italic;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+/* Role Selector Switcher Bar */
+.guide-roles-selector-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(15, 23, 36, 0.7);
+    border: 1px solid var(--border-gold-trans);
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.roles-label {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-main);
+}
+
+.guide-role-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.guide-role-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-body);
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.guide-role-btn:hover {
+    background: rgba(200, 155, 60, 0.1);
+    border-color: rgba(200, 155, 60, 0.4);
+    color: var(--gold-light);
+}
+
+.guide-role-btn.active {
+    background: linear-gradient(135deg, rgba(200, 155, 60, 0.25) 0%, rgba(10, 203, 230, 0.15) 100%);
+    border-color: var(--gold-hextech);
+    color: var(--gold-hextech);
+    box-shadow: 0 0 14px rgba(200, 155, 60, 0.3);
+}
+
+/* Strategy Grid & Cards */
+.guide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.guide-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold-trans);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.guide-card.col-2 {
+    grid-column: span 2;
+}
+
+.guide-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 14px;
+}
+
+.guide-card-icon {
+    font-size: 26px;
+    line-height: 1;
+}
+
+.card-subtext {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+}
+
+/* Phase Blocks (Early, Mid, Late) */
+.phase-block {
+    margin-bottom: 18px;
+}
+
+.phase-block:last-child {
+    margin-bottom: 0;
+}
+
+.phase-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin-bottom: 6px;
+}
+
+.phase-badge {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.phase-badge.early {
+    background: rgba(46, 196, 182, 0.2);
+    color: #2ec4b6;
+    border: 1px solid rgba(46, 196, 182, 0.4);
+}
+
+.phase-badge.mid {
+    background: rgba(255, 183, 3, 0.2);
+    color: #ffb703;
+    border: 1px solid rgba(255, 183, 3, 0.4);
+}
+
+.phase-badge.late {
+    background: rgba(230, 57, 70, 0.2);
+    color: #e63946;
+    border: 1px solid rgba(230, 57, 70, 0.4);
+}
+
+.phase-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-body);
+}
+
+/* Setup Items & Combos */
+.setup-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 16px;
+}
+
+.setup-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.setup-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.setup-value {
+    font-size: 14px;
+    color: var(--color-text-main);
+}
+
+.highlight-gold {
+    color: var(--gold-hextech) !important;
+}
+
+.combos-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.combo-item {
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 3px solid var(--blue-hextech);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.combo-tag {
+    font-weight: 700;
+    color: var(--blue-hextech);
+    margin-right: 6px;
+}
+
+/* Runes & Items Sub-blocks */
+.grid-2-sub {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.sub-block-title {
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: var(--gold-light);
+}
+
+.rune-spec-box, .items-spec-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.items-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dot-item {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold-hextech);
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+/* ==========================================================================
+   --- MELEE VS RANGED TACTICAL CARDS ---
+   ========================================================================== */
+
+.matchup-range-container {
+    background: linear-gradient(180deg, rgba(15, 23, 36, 0.9) 0%, rgba(9, 14, 23, 0.95) 100%);
+    border-color: rgba(200, 155, 60, 0.3);
+}
+
+.range-tactics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.range-tactic-card {
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: transform 0.2s ease;
+}
+
+.range-tactic-card:hover {
+    transform: translateY(-2px);
+}
+
+.range-tactic-card.melee-focus {
+    background: linear-gradient(145deg, rgba(230, 57, 70, 0.08) 0%, rgba(131, 56, 236, 0.05) 100%);
+    border: 1px solid rgba(230, 57, 70, 0.35);
+    box-shadow: 0 4px 20px rgba(230, 57, 70, 0.08);
+}
+
+.range-tactic-card.ranged-focus {
+    background: linear-gradient(145deg, rgba(46, 196, 182, 0.08) 0%, rgba(10, 203, 230, 0.05) 100%);
+    border: 1px solid rgba(46, 196, 182, 0.35);
+    box-shadow: 0 4px 20px rgba(46, 196, 182, 0.08);
+}
+
+.tactic-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 10px;
+}
+
+.tactic-icon {
+    font-size: 24px;
+}
+
+.tactic-header h4 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.tactic-subtitle {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.tactic-advice {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-main);
+    margin-bottom: 14px;
+}
+
+.tactic-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 12px 14px;
+    border-radius: 6px;
+}
+
+.check-item {
+    font-size: 13px;
+    color: var(--color-text-body);
+}
+
+.check-bullet {
+    color: var(--diff-easy);
+    font-weight: 800;
+    margin-right: 6px;
+}
+
+/* ==========================================================================
+   --- DIRECT MATCHUP DUEL SIMULATOR ---
+   ========================================================================== */
+
+.direct-simulator-card {
+    border-color: rgba(10, 203, 230, 0.3);
+    background: linear-gradient(180deg, rgba(15, 23, 36, 0.8) 0%, rgba(7, 13, 22, 0.9) 100%);
+}
+
+.direct-simulator-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sim-picker-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 16px 24px;
+    flex-wrap: wrap;
+}
+
+.sim-champ-display {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.sim-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    border: 2px solid var(--gold-hextech);
+}
+
+.sim-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.sim-name {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-main);
+}
+
+.sim-range {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sim-range.melee {
+    color: #ff8597;
+}
+
+.sim-range.ranged {
+    color: #72ebd9;
+}
+
+.sim-vs-divider {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--gold-hextech);
+    background: rgba(200, 155, 60, 0.1);
+    border: 1px solid rgba(200, 155, 60, 0.3);
+    padding: 6px 14px;
+    border-radius: 8px;
+}
+
+.sim-enemy-selector-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 260px;
+}
+
+.sim-enemy-selector-box label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+/* Simulator Output */
+.sim-results-box {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.duel-header-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.duel-header-banner.melee-vs-melee {
+    background: rgba(131, 56, 236, 0.15);
+    border: 1px solid rgba(131, 56, 236, 0.4);
+}
+
+.duel-header-banner.melee-vs-ranged {
+    background: rgba(230, 57, 70, 0.15);
+    border: 1px solid rgba(230, 57, 70, 0.4);
+}
+
+.duel-header-banner.ranged-vs-melee {
+    background: rgba(46, 196, 182, 0.15);
+    border: 1px solid rgba(46, 196, 182, 0.4);
+}
+
+.duel-header-banner.ranged-vs-ranged {
+    background: rgba(10, 203, 230, 0.15);
+    border: 1px solid rgba(10, 203, 230, 0.4);
+}
+
+.duel-type-title {
+    font-family: var(--font-heading);
+    font-size: 15px;
+    color: var(--color-text-main);
+}
+
+.duel-range-meter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--color-text-body);
+}
+
+.range-diff-pill {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.range-diff-pill.positive {
+    background: rgba(46, 196, 182, 0.2);
+    color: #2ec4b6;
+    border: 1px solid rgba(46, 196, 182, 0.4);
+}
+
+.range-diff-pill.negative {
+    background: rgba(230, 57, 70, 0.2);
+    color: #e63946;
+    border: 1px solid rgba(230, 57, 70, 0.4);
+}
+
+.duel-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.duel-detail-item {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.detail-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-hextech);
+    margin-bottom: 4px;
+}
+
+.detail-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-main);
+}
+
+.duel-action-row {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Responsive adjustments for Guides */
+@media (max-width: 1024px) {
+    .guide-grid {
+        grid-template-columns: 1fr;
+    }
+    .guide-card.col-2 {
+        grid-column: span 1;
+    }
+    .range-tactics-grid {
+        grid-template-columns: 1fr;
+    }
+    .grid-2-sub {
+        grid-template-columns: 1fr;
+    }
+    .setup-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   --- All Matchups by Lane Page Styling ---
+   ========================================================================== */
+
+.header-mode-toggle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Lane Tabs Bar */
+.all-lane-tabs-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 12px;
+}
+
+.all-lane-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-body);
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.all-lane-tab-btn:hover {
+    background: rgba(200, 155, 60, 0.1);
+    border-color: rgba(200, 155, 60, 0.35);
+    color: var(--gold-light);
+}
+
+.all-lane-tab-btn.active {
+    background: linear-gradient(135deg, rgba(200, 155, 60, 0.25) 0%, rgba(10, 203, 230, 0.15) 100%);
+    border-color: var(--gold-hextech);
+    color: var(--gold-hextech);
+    box-shadow: 0 0 16px rgba(200, 155, 60, 0.25);
+}
+
+.tab-lane-icon {
+    font-size: 16px;
+}
+
+/* Matrix Controls Card */
+.matrix-controls-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold-trans);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.matrix-selection-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.matrix-my-champ-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1 1 300px;
+}
+
+.matrix-my-champ-picker label,
+.matrix-search-box label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.matrix-select-with-avatar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.matrix-champ-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: 2px solid var(--gold-hextech);
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 12px rgba(200, 155, 60, 0.3);
+    flex-shrink: 0;
+}
+
+.matrix-search-box {
+    flex: 2 1 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Matrix Filters Row */
+.matrix-filters-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 14px;
+}
+
+.matrix-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.matrix-diff-chip,
+.matrix-range-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    color: var(--color-text-body);
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.matrix-diff-chip:hover,
+.matrix-range-chip:hover {
+    background: rgba(200, 155, 60, 0.1);
+    color: var(--gold-light);
+}
+
+.matrix-diff-chip.active,
+.matrix-range-chip.active {
+    background: rgba(200, 155, 60, 0.25);
+    border-color: var(--gold-hextech);
+    color: var(--gold-hextech);
+    box-shadow: 0 0 10px rgba(200, 155, 60, 0.2);
+}
+
+.matrix-diff-chip.diff-easy-btn.active {
+    background: rgba(46, 196, 182, 0.2);
+    border-color: var(--diff-easy);
+    color: var(--diff-easy);
+}
+
+.matrix-diff-chip.diff-medium-btn.active {
+    background: rgba(255, 183, 3, 0.2);
+    border-color: var(--diff-medium);
+    color: var(--diff-medium);
+}
+
+.matrix-diff-chip.diff-hard-btn.active {
+    background: rgba(230, 57, 70, 0.2);
+    border-color: var(--diff-hard);
+    color: var(--diff-hard);
+}
+
+.matrix-diff-chip.diff-skill-btn.active {
+    background: rgba(131, 56, 236, 0.2);
+    border-color: var(--diff-skill);
+    color: var(--diff-skill);
+}
+
+/* Matchups Grid */
+.matrix-matchups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+}
+
+/* Individual Matchup Matrix Card */
+.matchup-matrix-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: var(--card-shadow);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.matchup-matrix-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(200, 155, 60, 0.4);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+.matchup-matrix-card.diff-easy {
+    border-top: 3px solid var(--diff-easy);
+}
+.matchup-matrix-card.diff-medium {
+    border-top: 3px solid var(--diff-medium);
+}
+.matchup-matrix-card.diff-hard {
+    border-top: 3px solid var(--diff-hard);
+}
+.matchup-matrix-card.diff-skill {
+    border-top: 3px solid var(--diff-skill);
+}
+
+.matrix-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 14px;
+}
+
+.matrix-champs-duo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.matrix-avatar-box {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+}
+
+.matrix-avatar-box.my {
+    border-color: var(--gold-hextech);
+}
+
+.matrix-avatar-box.enemy {
+    border-color: var(--blue-hextech);
+}
+
+.matrix-avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.matrix-pill-range {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 10px;
+    background: #06090e;
+    padding: 1px 3px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.matrix-vs-badge {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--color-text-muted);
+}
+
+.matrix-header-info {
+    flex: 1;
+}
+
+.matrix-enemy-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.matrix-badges-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.matrix-diff-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.matrix-diff-badge.easy {
+    background: rgba(46, 196, 182, 0.2);
+    color: var(--diff-easy);
+    border: 1px solid rgba(46, 196, 182, 0.4);
+}
+.matrix-diff-badge.medium {
+    background: rgba(255, 183, 3, 0.2);
+    color: var(--diff-medium);
+    border: 1px solid rgba(255, 183, 3, 0.4);
+}
+.matrix-diff-badge.hard {
+    background: rgba(230, 57, 70, 0.2);
+    color: var(--diff-hard);
+    border: 1px solid rgba(230, 57, 70, 0.4);
+}
+.matrix-diff-badge.skill {
+    background: rgba(131, 56, 236, 0.2);
+    color: var(--diff-skill);
+    border: 1px solid rgba(131, 56, 236, 0.4);
+}
+
+.matrix-range-delta {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.matrix-range-delta.pos {
+    color: #2ec4b6;
+}
+
+.matrix-range-delta.neg {
+    color: #ff8597;
+}
+
+.matrix-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.matrix-key-tip {
+    background: linear-gradient(135deg, rgba(200, 155, 60, 0.12) 0%, rgba(120, 90, 40, 0.06) 100%);
+    border-left: 3px solid var(--gold-hextech);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+}
+
+.key-tip-label {
+    font-family: var(--font-heading);
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--gold-hextech);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.key-tip-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-main);
+}
+
+.matrix-spell-alert {
+    background: rgba(230, 57, 70, 0.08);
+    border: 1px solid rgba(230, 57, 70, 0.2);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #ffadad;
+}
+
+.spell-alert-label {
+    font-weight: 700;
+    margin-right: 4px;
+}
+
+.matrix-wave-info,
+.matrix-timing-info,
+.matrix-items-info {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.wave-info-label,
+.timing-info-label,
+.items-info-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.matrix-card-actions {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 14px;
+}
+
+.btn-import-matrix {
+    flex: 1;
+}
+
+/* Universal Duel Simulator Card & View */
+.universal-duel-controls-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold-trans);
+    border-radius: 12px;
+    padding: 24px 28px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 24px;
+}
+
+.duel-selector-pair {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.duel-picker-column {
+    flex: 1 1 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.duel-picker-column label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.duel-vs-circle-large {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--gold-hextech);
+    background: rgba(200, 155, 60, 0.15);
+    border: 1px solid rgba(200, 155, 60, 0.4);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.universal-duel-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border-gold-trans);
+    background: rgba(15, 23, 36, 0.8);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.duel-banner-duo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.duel-champ-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.duel-champ-box img {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    border: 2px solid var(--gold-hextech);
+}
+
+.duel-vs-circle {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gold-hextech);
+}
+
+.duel-banner-badges {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.universal-duel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.duel-card-section {
+    padding: 20px;
+}
+
+.duel-card-section.col-full {
+    grid-column: span 2;
+}
+
+.highlight-gold-border {
+    border-color: var(--gold-hextech);
+    background: linear-gradient(145deg, rgba(200, 155, 60, 0.1) 0%, rgba(15, 23, 36, 0.7) 100%);
+}
+
+.duel-card-section h4 {
+    font-size: 15px;
+    margin-bottom: 10px;
+    color: var(--gold-light);
+}
+
+.duel-section-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-main);
+}
+
+.font-accent {
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.universal-duel-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+    .matrix-matchups-grid {
+        grid-template-columns: 1fr;
+    }
+    .universal-duel-grid {
+        grid-template-columns: 1fr;
+    }
+    .duel-card-section.col-full {
+        grid-column: span 1;
+    }
+    .duel-selector-pair {
+        flex-direction: column;
+    }
+    .duel-vs-circle-large {
+        margin: 8px auto;
+    }
+}
+
+
+

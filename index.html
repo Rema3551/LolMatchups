@@ -41,6 +41,14 @@
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M3 20h9M4 12h16M4 4h16M12 4v16"/></svg>
                     Mes Matchups
                 </button>
+                <button class="nav-item" data-tab="guides" id="nav-guides-btn">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Guides & Stratégies
+                </button>
+                <button class="nav-item" data-tab="all-matchups" id="nav-all-matchups-btn">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+                    Tous les Matchups
+                </button>
                 <button class="nav-item" data-tab="editor" id="nav-editor-btn">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Ajouter/Modifier
@@ -252,6 +260,170 @@
 
                 <div class="matchups-list-grid" id="matchups-list-container">
                     <!-- Matchup list cards will be rendered dynamically here -->
+                </div>
+            </section>
+
+            <!-- TAB: Guides Stratégiques Champions & Rôles -->
+            <section id="guides" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h2>Guides des Champions & Stratégies par Rôle</h2>
+                        <p class="subtitle">Plans de jeu, builds, et guides tactiques face aux champions Mêlée et Distance</p>
+                    </div>
+                </header>
+
+                <div class="guides-layout-wrapper">
+                    <!-- Top / Left Bar: Champion Selection & Filters -->
+                    <div class="card guides-browser-card">
+                        <div class="guides-controls-bar">
+                            <div class="search-box guide-search-box">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="guide-champ-search" placeholder="Rechercher un champion (ex: Aatrox, Ahri, Jinx...)...">
+                            </div>
+
+                            <div class="guide-filter-group">
+                                <span class="filter-group-label">Portée :</span>
+                                <div class="filter-chips-container">
+                                    <button class="filter-chip guide-range-filter-btn active" data-range="all">Tous</button>
+                                    <button class="filter-chip guide-range-filter-btn" data-range="melee">⚔️ Mêlée</button>
+                                    <button class="filter-chip guide-range-filter-btn" data-range="ranged">🏹 Distance</button>
+                                </div>
+                            </div>
+
+                            <div class="guide-filter-group">
+                                <span class="filter-group-label">Rôle :</span>
+                                <div class="filter-chips-container">
+                                    <button class="filter-chip guide-role-filter-btn active" data-role="all">Tous</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="TOP">TOP</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="JUNGLE">JUNGLE</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="MID">MID</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="ADC">ADC</button>
+                                    <button class="filter-chip guide-role-filter-btn" data-role="SUPPORT">SUPPORT</button>
+                                </div>
+                            </div>
+
+                            <button id="guide-pool-filter-btn" class="filter-chip pool-filter-toggle">
+                                ⭐ Mon Champion Pool
+                            </button>
+                        </div>
+
+                        <!-- Champions Grid / Ribbon -->
+                        <div class="guide-champions-grid-container" id="guide-champions-grid">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Main Content: Detailed Selected Champion Guide -->
+                    <div id="guide-detail-container" class="guide-detail-area">
+                        <!-- Dynamically rendered by renderSelectedChampionGuide() -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Tous les Matchups par Lane -->
+            <section id="all-matchups" class="tab-content">
+                <header class="content-header">
+                    <div>
+                        <h2>Matrice Universelle de Tous les Matchups par Lane</h2>
+                        <p class="subtitle">Tous les duels imaginables analysés en direct avec astuces clés, sorts critiques à esquiver et gestion de vague</p>
+                    </div>
+
+                    <div class="header-mode-toggle">
+                        <button id="mode-matrix-btn" class="btn btn-sm btn-primary active">📚 Matrice Complète</button>
+                        <button id="mode-duel-btn" class="btn btn-sm btn-secondary">🥊 Duel 1v1 Universel</button>
+                    </div>
+                </header>
+
+                <!-- Lane Selection Tabs -->
+                <div class="all-lane-tabs-bar">
+                    <button class="all-lane-tab-btn active" data-lane="TOP"><span class="tab-lane-icon">🛡️</span> TOPLANE</button>
+                    <button class="all-lane-tab-btn" data-lane="JUNGLE"><span class="tab-lane-icon">🌲</span> JUNGLE</button>
+                    <button class="all-lane-tab-btn" data-lane="MID"><span class="tab-lane-icon">⚡</span> MIDLANE</button>
+                    <button class="all-lane-tab-btn" data-lane="ADC"><span class="tab-lane-icon">🏹</span> BOTLANE (ADC)</button>
+                    <button class="all-lane-tab-btn" data-lane="SUPPORT"><span class="tab-lane-icon">❤️</span> SUPPORT</button>
+                </div>
+
+                <!-- MODE 1: MATRIX VIEW -->
+                <div id="matrix-view-container">
+                    <!-- Champion Bar + Controls -->
+                    <div class="card matrix-controls-card">
+                        <div class="matrix-selection-row">
+                            <div class="matrix-my-champ-picker">
+                                <label>Mon Champion dans cette Lane :</label>
+                                <div class="matrix-select-with-avatar">
+                                    <div class="matrix-champ-avatar" id="matrix-my-champ-avatar"></div>
+                                    <select id="matrix-my-champ-select" class="form-control custom-select-small">
+                                        <!-- Dynamiquement peuplé -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="matrix-search-box">
+                                <label>Rechercher un adversaire :</label>
+                                <div class="search-box">
+                                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    <input type="text" id="matrix-search-input" placeholder="Filtrer par adversaire (ex: Fiora, Teemo, Jax...)...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="matrix-filters-row">
+                            <div class="matrix-filter-group">
+                                <span class="filter-label">Difficulté :</span>
+                                <div class="filter-chips">
+                                    <button class="matrix-diff-chip active" data-diff="all">Tous (<span id="count-chip-all">0</span>)</button>
+                                    <button class="matrix-diff-chip diff-easy-btn" data-diff="easy">🟢 Faciles (<span id="count-chip-easy">0</span>)</button>
+                                    <button class="matrix-diff-chip diff-medium-btn" data-diff="medium">🟡 Moyens (<span id="count-chip-medium">0</span>)</button>
+                                    <button class="matrix-diff-chip diff-hard-btn" data-diff="hard">🔴 Difficiles (<span id="count-chip-hard">0</span>)</button>
+                                    <button class="matrix-diff-chip diff-skill-btn" data-diff="skill">🟣 Skill (<span id="count-chip-skill">0</span>)</button>
+                                </div>
+                            </div>
+
+                            <div class="matrix-filter-group">
+                                <span class="filter-label">Portée de l'adversaire :</span>
+                                <div class="filter-chips">
+                                    <button class="matrix-range-chip active" data-range="all">Toutes</button>
+                                    <button class="matrix-range-chip" data-range="melee">⚔️ Mêlée</button>
+                                    <button class="matrix-range-chip" data-range="ranged">🏹 Distance</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Matchups Cards Grid -->
+                    <div class="matrix-matchups-grid" id="matrix-matchups-grid">
+                        <!-- Dynamiquement rendu -->
+                    </div>
+                </div>
+
+                <!-- MODE 2: UNIVERSAL 1v1 DUEL VIEW -->
+                <div id="duel-view-container" style="display: none;">
+                    <div class="card universal-duel-controls-card">
+                        <h3>Simulateur de Duel 1v1 Universel</h3>
+                        <p class="subtitle">Sélectionnez deux champions pour générer l'analyse exhaustive du matchup dans cette lane</p>
+
+                        <div class="duel-selector-pair">
+                            <div class="duel-picker-column">
+                                <label>Mon Champion :</label>
+                                <select id="sim-universal-my-select" class="form-control custom-select-small" style="width: 100%;">
+                                    <!-- Rempli dynamiquement -->
+                                </select>
+                            </div>
+
+                            <div class="duel-vs-circle-large">VS</div>
+
+                            <div class="duel-picker-column">
+                                <label>Champion Adversaire :</label>
+                                <select id="sim-universal-enemy-select" class="form-control custom-select-small" style="width: 100%;">
+                                    <!-- Rempli dynamiquement -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sim-universal-output" class="universal-duel-output-wrapper">
+                        <!-- Dynamiquement rendu -->
+                    </div>
                 </div>
             </section>
 
@@ -504,6 +676,10 @@
         </div>
     </div>
 
+    <script src="guides-data.js"></script>
+    <script src="guides.js"></script>
+    <script src="matchups-data.js"></script>
+    <script src="matchups-engine.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

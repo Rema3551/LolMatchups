@@ -1,0 +1,113 @@
+{
+    "championPool": {
+        "TOP": [],
+        "JUNGLE": [],
+        "MID": [
+            "Naafiri",
+            "Orianna",
+            "Rakan"
+        ],
+        "ADC": [],
+        "SUPPORT": []
+    },
+    "matchups": {
+        "MID_Naafiri_Veigar": {
+            "id": "MID_Naafiri_Veigar",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Veigar",
+            "difficulty": "easy",
+            "role": "MID",
+            "style": "MID",
+            "runes": "",
+            "items": "",
+            "early": "Le détruire dans les premiers niveaux, wave clear tranquille pour pas qu'il farme",
+            "mid": "",
+            "tips": "Faire attention, pendant que le R de Naafiri, Veigar peut faire sa cage",
+            "updatedAt": "2026-07-09T08:43:03.857Z"
+        },
+        "MID_Naafiri_Mel": {
+            "id": "MID_Naafiri_Mel",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Mel",
+            "difficulty": "easy",
+            "role": "MID",
+            "style": "MID",
+            "runes": "",
+            "items": "",
+            "early": "Respecter jusqu'au niveau 3 -> jouer chill si elle tue mes chiens",
+            "mid": "On la détruit, dès que j'ai la portée du R faut que je le fasse, si possibilité de le tuer\nMel ne peut pas arrêter mon R, je fonce quand même dessus même si je me fais stun à la fin",
+            "tips": "dodge execut avec le Z",
+            "updatedAt": "2026-07-14T15:04:37.860Z"
+        },
+        "MID_Naafiri_Taliyah": {
+            "id": "MID_Naafiri_Taliyah",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Taliyah",
+            "difficulty": "medium",
+            "role": "MID",
+            "style": "MID",
+            "runes": "",
+            "items": "",
+            "early": "Respecter jusqu'au niveau 3",
+            "mid": "",
+            "tips": "Bait son \"par terre\" caillou, et la one derrière.\nPossible de Z pour passer sur le \"par terre\" sans se faire stun",
+            "updatedAt": "2026-07-09T19:12:48.882Z"
+        },
+        "MID_Naafiri_Vex": {
+            "id": "MID_Naafiri_Vex",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Vex",
+            "difficulty": "easy",
+            "role": "MID",
+            "style": "MID",
+            "runes": "",
+            "items": "",
+            "early": "Dans les premiers niveaux, respecter en essayant de toucher les Q",
+            "mid": "",
+            "tips": "2 façons de jouer : \nSi Vex joue passif, alors il faut après être passé niveau 6, roam beaucoup.\nSi Vex n'est pas passive, attendre qu'elle mette son fear pour ensuite la défoncer.",
+            "updatedAt": "2026-07-09T19:25:15.716Z"
+        },
+        "MID_Naafiri_Vladimir": {
+            "id": "MID_Naafiri_Vladimir",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Vladimir",
+            "difficulty": "easy",
+            "role": "MID",
+            "style": "MID",
+            "runes": "",
+            "items": "",
+            "early": "Respecter Niveau 1, le détruire ensuite",
+            "mid": "",
+            "tips": "Attendre qu'il fasse sa flaque avant de R\nLe détruire ensuite",
+            "updatedAt": "2026-07-09T22:18:55.210Z"
+        },
+        "MID_Naafiri_Fizz": {
+            "id": "MID_Naafiri_Fizz",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Fizz",
+            "difficulty": "skill",
+            "role": "MID",
+            "style": "MID",
+            "runes": "",
+            "items": "",
+            "early": "Respecter niveau 1 si il a le E",
+            "mid": "Naafiri meilleure après le lvl 3",
+            "tips": "Attendre son E pour Z vers lui, ensuite lui foncer dessus et le défoncer",
+            "updatedAt": "2026-07-14T17:52:53.432Z"
+        },
+        "MID_Naafiri_Yone": {
+            "id": "MID_Naafiri_Yone",
+            "myChamp": "Naafiri",
+            "enemyChamp": "Yone",
+            "difficulty": "easy",
+            "role": "MID",
+            "style": "",
+            "runes": "",
+            "items": "",
+            "early": "Ne pas le respecter, faire durer les fights",
+            "mid": "Ne pas le respecter, faire durer les fights",
+            "tips": "Ne pas le respecter, faire durer les fights",
+            "updatedAt": "2026-07-14T18:28:33.126Z"
+        }
+    }
+}
